@@ -1,0 +1,47 @@
+{% extends "components/base.html" %}
+
+{% block pageTitle %}
+    Home
+{% endblock %}
+
+{% block content %}
+  <h1 class="govuk-heading-xl">Find a GitHub Repository Owner</h1>
+
+  <h2 class="govuk-heading-l">Repositories by Owners</h2>
+  {{ pie_chart | safe }}
+
+  <h3 class="govuk-heading-m">Filter Results</h3>
+  <div class="moj-search">
+    <form method="post">
+      <div class="govuk-form-group">
+        <div id="search-hint" class="govuk-hint moj-search__hint ">
+          You can filter by repository name
+        </div>
+        <input class="govuk-input moj-search__input " id="search" name="search" type="search" value="{{ search_term }}" aria-describedby="search-hint">
+      </div>
+
+      <button type="submit" class="govuk-button moj-search__button " data-module="govuk-button">
+        Filter
+      </button>
+    </form>
+  </div>
+
+  <table class="govuk-table" data-module="moj-sortable-table">
+    <thead class="govuk-table__head">
+      <tr class="govuk-table__row">
+        <th scope="col" class="govuk-table__header" aria-sort="ascending">Name</th>
+        <th scope="col" class="govuk-table__header" aria-sort="none">Owners</th>
+      </tr>
+    </thead>
+
+    <tbody class="govuk-table__body">
+      {% for repository in repositories %}
+        <tr class="govuk-table__row">
+          <td class="govuk-table__cell"><a href="https://github.com/ministryofjustice/{{ repository["name"] }}" rel="noreferrer noopener" target="_blank" class="govuk-link">{{ repository["name"] }}</a></td>
+          <td class="govuk-table__cell">{% for owner in repository["owners"] %} {{ owner }}{% if loop.nextitem %}, {% endif %} {% endfor %}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+{% endblock %}
