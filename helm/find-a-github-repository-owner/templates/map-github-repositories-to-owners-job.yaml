@@ -1,0 +1,24 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: find-a-github-repository-owner
+  labels:
+    {{- include "app.labels" . | nindent 4 }}
+spec:
+  schedule: "0 12 * * *"
+  concurrencyPolicy: Replace
+  failedJobsHistoryLimit: 3
+  startingDeadlineSeconds: 300
+  successfulJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: cd-serviceaccount
+          containers:
+          - name: find-a-github-repository-owner
+            image: "{{ .Values.app.deployment.image.repository }}:{{ .Values.app.deployment.image.tag | default .Chart.AppVersion }}"
+            command: ["python3", "-m"]
+            args: ["jobs.map_github_repositories_to_owners"]
+          restartPolicy: Never
+          activeDeadlineSeconds: 240
