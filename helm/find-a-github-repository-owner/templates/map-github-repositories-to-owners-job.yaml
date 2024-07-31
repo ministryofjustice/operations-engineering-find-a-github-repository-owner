@@ -19,6 +19,6 @@ spec:
           - name: find-a-github-repository-owner
             image: "{{ .Values.app.deployment.image.repository }}:{{ .Values.app.deployment.image.tag | default .Chart.AppVersion }}"
             command: ["python3", "-m"]
-            args: ["jobs.map_github_repositories_to_owners"]
+            args: ["app.jobs.map_github_repositories_to_owners"]
           restartPolicy: Never
           activeDeadlineSeconds: 240

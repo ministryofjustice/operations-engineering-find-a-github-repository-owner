@@ -5,17 +5,16 @@ services:
     image: "find-a-github-repository-owner"
     container_name: "find-a-github-repository-owner"
     environment:
-      # GitHub
-      ADMIN_GITHUB_TOKEN: fake
-
-      # Auth0
-      AUTH0_CLIENT_ID: dev
-      AUTH0_CLIENT_SECRET: dev
-      AUTH0_DOMAIN: operations-engineering.eu.auth0.com
-
       # Flask
       APP_SECRET_KEY: dev
       FLASK_DEBUG: true
+
+      # Postgres
+      POSTGRES_PASSWORD: admin
+      POSTGRES_USER: admin
+      POSTGRES_DB: admin
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
 
       # Sentry
       # SENTRY_DSN_KEY:
@@ -26,3 +25,24 @@ services:
       LOGGING_LEVEL: "DEBUG"
     ports:
       - "4567:4567"
+    depends_on:
+      postgres:
+        condition: service_started
+        restart: true
+    networks:
+      - find-a-github-repository-owner
+
+  postgres:
+    image: postgres:14-alpine
+    container_name: "postgres"
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_PASSWORD=admin
+      - POSTGRES_USER=admin
+      - POSTGRES_DB=admin
+    networks:
+      - find-a-github-repository-owner
+
+networks:
+  find-a-github-repository-owner:
