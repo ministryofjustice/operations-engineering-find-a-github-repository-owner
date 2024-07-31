@@ -1,5 +1,6 @@
 import logging
 
+from app.main.services.database_service import DatabaseService
 from flask import Flask
 
 from app.main.config.app_config import app_config
@@ -9,7 +10,6 @@ from app.main.config.jinja_config import configure_jinja
 from app.main.config.limiter_config import configure_limiter
 from app.main.config.logging_config import configure_logging
 from app.main.config.routes_config import configure_routes
-from app.main.config.sentry_config import configure_sentry
 
 logger = logging.getLogger(__name__)
 
@@ -25,10 +25,16 @@ def create_app(is_rate_limit_enabled=True) -> Flask:
 
     configure_routes(app)
     configure_error_handlers(app)
-    configure_sentry(app_config.sentry.dsn_key, app_config.sentry.environment)
     configure_limiter(app, is_rate_limit_enabled)
     configure_jinja(app)
     configure_cors(app)
+
+    database_service = DatabaseService()
+    database_service.create_asset_table()
+    database_service.create_owner_table()
+    database_service.create_relationship_table()
+    database_service.clean_all_stubbed_values()
+    database_service.add_stubbed_values()
 
     logger.info("Running app...")
 

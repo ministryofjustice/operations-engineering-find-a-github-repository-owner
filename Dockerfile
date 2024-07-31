@@ -9,8 +9,6 @@ WORKDIR /home/place
 COPY Pipfile Pipfile
 COPY Pipfile.lock Pipfile.lock
 COPY app app
-COPY app/main app/main
-COPY app/main/config app/main/config
 
 RUN pip3 install --no-cache-dir pipenv
 RUN pipenv install --system --deploy --ignore-pipfile
