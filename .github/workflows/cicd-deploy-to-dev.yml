@@ -69,7 +69,6 @@ jobs:
             --namespace ${KUBE_NAMESPACE} \
             --values=helm/find-a-github-repository-owner/values-dev.yaml \
             --set app.deployment.env.APP_SECRET_KEY=${FLASK_APP_SECRET} \
-            --set app.deployment.env.ADMIN_GITHUB_TOKEN=${ADMIN_GITHUB_TOKEN} \
             --set app.deployment.env.POSTGRES_USER=${POSTGRES_USER} \
             --set app.deployment.env.POSTGRES_PASSWORD=${POSTGRES_PASSWORD} \
             --set app.deployment.env.POSTGRES_DB=${POSTGRES_DB} \
