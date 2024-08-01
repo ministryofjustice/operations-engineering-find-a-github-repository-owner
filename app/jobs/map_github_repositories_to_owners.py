@@ -190,6 +190,9 @@ def main():
             ownersFound += 1
 
         if ownersFound == 0:
+            database_service.add_asset_if_name_does_not_exist(
+                "REPOSITORY", repository["name"]
+            )
             unownedRepoCount = unownedRepos.append(repository)
 
         if ownersFound > 1:
@@ -207,8 +210,7 @@ def main():
     totalRepositories = len(repositories)
     totalFound = totalRepositories - unownedRepoCount
 
-    # Using print here instead of logging so I can pipe the output straight into jq
-    print(
+    logger.debug(
         json.dumps(
             {
                 "totals": {

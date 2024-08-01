@@ -18,14 +18,14 @@ class DatabaseService:
             host=app_config.postgres.host,
             port=app_config.postgres.port,
         ) as conn:
-            logging.info("Executing query...")
+            logger.debug("Executing query...")
             cur = conn.cursor()
             cur.execute(sql, values)
             data = None
             try:
                 data = cur.fetchall()
             except Exception as e:
-                logging.error(e)
+                logger.debug(e)
             conn.commit()
             return data
 
@@ -89,6 +89,13 @@ class DatabaseService:
             values=[type, name],
         )
 
+    def add_asset_if_name_does_not_exist(self, type: str, name: str):
+        results = self.find_asset_by_name(name)
+
+        if not results:
+            logger.info(f"Creating asset [ {name} ] because it does not exist")
+            self.add_asset(type, name)
+
     def find_asset_by_name(self, name: str) -> list[tuple[Any, Any, Any]]:
         return (
             self.__execute_query(
@@ -105,10 +112,10 @@ class DatabaseService:
         )
 
     def add_relationship_between_asset_and_owner(self, asset_name: str, owner_id: int):
-        logging.info(
+        logger.info(
             f"Adding relationship between repository [ {asset_name} ] and owner [ {owner_id} ]"
         )
-        self.add_asset("REPOSITORY", asset_name)
+        self.add_asset_if_name_does_not_exist("REPOSITORY", asset_name)
         asset_id, _, _ = self.find_asset_by_name(asset_name)[0]
 
         self.add_relationship(
@@ -204,7 +211,7 @@ class DatabaseService:
                 a.id, o.id
         """)
 
-        logging.info(response)
+        logger.debug(response)
 
         asset_owners_map = {}
         for asset_name, owner_name in response:
@@ -215,5 +222,5 @@ class DatabaseService:
                 asset_owners_map[asset_name]["owners"].append(owner_name)
 
         flattened_assets = list(asset_owners_map.values())
-        logging.info(flattened_assets)
+        logger.debug(flattened_assets)
         return flattened_assets
