@@ -104,6 +104,19 @@ class DatabaseService:
             values=[type, asset_id, owner_id],
         )
 
+    def add_relationship_between_asset_and_owner(self, asset_name: str, owner_id: int):
+        logging.info(
+            f"Adding relationship between repository [ {asset_name} ] and owner [ {owner_id} ]"
+        )
+        self.add_asset("REPOSITORY", asset_name)
+        asset_id, _, _ = self.find_asset_by_name(asset_name)[0]
+
+        self.add_relationship(
+            "MAPPED",
+            asset_id,
+            owner_id,
+        )
+
     def add_stubbed_values(self):
         self.add_owner("STUBBED_PLATFORMS_AND_ARCHITECTURES")
         panda_owner_id, _ = self.find_owner_by_name(
