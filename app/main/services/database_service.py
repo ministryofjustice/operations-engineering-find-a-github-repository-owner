@@ -215,9 +215,9 @@ class DatabaseService:
                 o.name AS owner_name
             FROM 
                 asset a
-            JOIN 
+            LEFT JOIN 
                 relationship r ON a.id = r.asset_id
-            JOIN 
+            LEFT JOIN 
                 owner o ON r.owner_id = o.id
             ORDER BY 
                 a.id, o.id
