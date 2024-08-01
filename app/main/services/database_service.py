@@ -121,6 +121,9 @@ class DatabaseService:
         )
 
         if not results:
+            logger.info(
+                f"Creating relationship [ {type} ] for asset [ {asset_id} ] and owner [ {owner_id} ] because it does not exist"
+            )
             self.add_relationship(type, asset_id, owner_id)
 
     def add_relationship_between_asset_and_owner(self, asset_name: str, owner_id: int):

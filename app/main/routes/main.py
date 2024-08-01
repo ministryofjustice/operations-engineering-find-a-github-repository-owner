@@ -41,7 +41,7 @@ def index():
         filtered_results = [
             repository
             for repository in repositories
-            if search_term.lower() in repository["name"].lower()
+            if search_term in repository["owners"]
         ]
         logging.info(search_term)
         logging.info(filtered_results)
