@@ -277,6 +277,7 @@ def main():
             }
         )
     )
+    logger.info("Complete!")
 
 
 if __name__ == "__main__":

@@ -111,14 +111,23 @@ class DatabaseService:
             values=[type, asset_id, owner_id],
         )
 
-    def add_relationship_between_asset_and_owner(self, asset_name: str, owner_id: int):
-        logger.info(
-            f"Adding relationship between repository [ {asset_name} ] and owner [ {owner_id} ]"
+    def update_relationship(self, type: str, asset_id: int, owner_id):
+        results = (
+            self.__execute_query(
+                sql="SELECT * FROM relationship WHERE type = %s AND owner_id = %s and asset_id = %s;",
+                values=[type, owner_id, asset_id],
+            )
+            or []
         )
+
+        if not results:
+            self.add_relationship(type, asset_id, owner_id)
+
+    def add_relationship_between_asset_and_owner(self, asset_name: str, owner_id: int):
         self.add_asset_if_name_does_not_exist("REPOSITORY", asset_name)
         asset_id, _, _ = self.find_asset_by_name(asset_name)[0]
 
-        self.add_relationship(
+        self.update_relationship(
             "MAPPED",
             asset_id,
             owner_id,
