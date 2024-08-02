@@ -31,6 +31,8 @@ spec:
                value: {{ .Values.app.deployment.env.POSTGRES_HOST | quote }}
              - name: POSTGRES_PORT
                value: {{ .Values.app.deployment.env.POSTGRES_PORT | quote }}
+             - name: ADMIN_GITHUB_TOKEN 
+               value: {{ .Values.app.deployment.env.ADMIN_GITHUB_TOKEN | quote }}
 
           restartPolicy: Never
-          activeDeadlineSeconds: 240
+          activeDeadlineSeconds: 7200

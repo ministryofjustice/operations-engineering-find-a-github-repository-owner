@@ -22,6 +22,7 @@ env:
   POSTGRES_DB: ${{ secrets.DEV_POSTGRES_DB }}
   POSTGRES_HOST: ${{ secrets.DEV_POSTGRES_HOST }}
   POSTGRES_PORT: ${{ secrets.DEV_POSTGRES_PORT }}
+  ADMIN_GITHUB_TOKEN: ${{ secrets.ADMIN_GITHUB_TOKEN  }}
 
 jobs:
   build-push:
@@ -76,5 +77,6 @@ jobs:
             --set app.deployment.env.POSTGRES_DB=${POSTGRES_DB} \
             --set app.deployment.env.POSTGRES_HOST=${POSTGRES_HOST} \
             --set app.deployment.env.POSTGRES_PORT=${POSTGRES_PORT} \
+            --set app.deployment.env.ADMIN_GITHUB_TOKEN=${ADMIN_GITHUB_TOKEN} \
             --set app.deployment.image.repository=${ECR_REGISTRY}/${ECR_REPOSITORY} \
             --set app.deployment.image.tag=${IMAGE_TAG}

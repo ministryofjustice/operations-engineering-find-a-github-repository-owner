@@ -2,7 +2,9 @@ from app.main.services.database_service import DatabaseService
 import logging
 from app.main.config.app_config import app_config
 from app.main.config.logging_config import configure_logging
-from app.jobs.repositories import repositories
+from app.main.services.github_service import GithubService
+
+# from app.jobs.repositories import repositories
 import json
 
 logger = logging.getLogger(__name__)
@@ -26,6 +28,8 @@ def main():
     configure_logging(app_config.logging_level)
     logger.info("Running...")
     database_service = DatabaseService()
+    github_service = GithubService(app_config.github.token)
+    repositories = github_service.get_all_repositories()
 
     hmpps_owner_id, _ = database_service.find_owner_by_name("HMPPS")[0]
     laa_owner_id, _ = database_service.find_owner_by_name("LAA")[0]
