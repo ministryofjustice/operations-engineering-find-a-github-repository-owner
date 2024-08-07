@@ -4,7 +4,6 @@ from app.main.config.app_config import app_config
 from app.main.config.logging_config import configure_logging
 from app.main.services.github_service import GithubService
 
-# from app.jobs.repositories import repositories
 import json
 
 logger = logging.getLogger(__name__)
