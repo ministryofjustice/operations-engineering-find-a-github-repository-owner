@@ -38,11 +38,21 @@ def index():
     repositories = DatabaseService().find_all_repositories()
     if request.method == "POST":
         search_term = request.form.get("search")
-        filtered_results = [
-            repository
-            for repository in repositories
-            if search_term.lower() in repository["name"].lower()
-        ]
+        if search_term.lower() == "no owner":
+            filtered_results = [
+                repository for repository in repositories if not repository["owners"]
+            ]
+        else:
+            filtered_results = (
+                [
+                    repository
+                    for repository in repositories
+                    if search_term in repository["owners"]
+                ]
+                if search_term
+                else repositories
+            )
+
         logging.info(search_term)
         logging.info(filtered_results)
         return render_template(

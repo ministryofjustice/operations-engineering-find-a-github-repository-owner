@@ -18,14 +18,14 @@ class DatabaseService:
             host=app_config.postgres.host,
             port=app_config.postgres.port,
         ) as conn:
-            logging.info("Executing query...")
+            logger.debug("Executing query...")
             cur = conn.cursor()
             cur.execute(sql, values)
             data = None
             try:
                 data = cur.fetchall()
             except Exception as e:
-                logging.error(e)
+                logger.debug(e)
             conn.commit()
             return data
 
@@ -89,6 +89,13 @@ class DatabaseService:
             values=[type, name],
         )
 
+    def add_asset_if_name_does_not_exist(self, type: str, name: str):
+        results = self.find_asset_by_name(name)
+
+        if not results:
+            logger.info(f"Creating asset [ {name} ] because it does not exist")
+            self.add_asset(type, name)
+
     def find_asset_by_name(self, name: str) -> list[tuple[Any, Any, Any]]:
         return (
             self.__execute_query(
@@ -102,6 +109,31 @@ class DatabaseService:
         self.__execute_query(
             "INSERT INTO relationship (type, asset_id, owner_id) VALUES (%s, %s, %s);",
             values=[type, asset_id, owner_id],
+        )
+
+    def update_relationship(self, type: str, asset_id: int, owner_id):
+        results = (
+            self.__execute_query(
+                sql="SELECT * FROM relationship WHERE type = %s AND owner_id = %s and asset_id = %s;",
+                values=[type, owner_id, asset_id],
+            )
+            or []
+        )
+
+        if not results:
+            logger.info(
+                f"Creating relationship [ {type} ] for asset [ {asset_id} ] and owner [ {owner_id} ] because it does not exist"
+            )
+            self.add_relationship(type, asset_id, owner_id)
+
+    def add_relationship_between_asset_and_owner(self, asset_name: str, owner_id: int):
+        self.add_asset_if_name_does_not_exist("REPOSITORY", asset_name)
+        asset_id, _, _ = self.find_asset_by_name(asset_name)[0]
+
+        self.update_relationship(
+            "MAPPED",
+            asset_id,
+            owner_id,
         )
 
     def add_stubbed_values(self):
@@ -183,15 +215,15 @@ class DatabaseService:
                 o.name AS owner_name
             FROM 
                 asset a
-            JOIN 
+            LEFT JOIN 
                 relationship r ON a.id = r.asset_id
-            JOIN 
+            LEFT JOIN 
                 owner o ON r.owner_id = o.id
             ORDER BY 
                 a.id, o.id
         """)
 
-        logging.info(response)
+        logger.debug(response)
 
         asset_owners_map = {}
         for asset_name, owner_name in response:
@@ -202,5 +234,5 @@ class DatabaseService:
                 asset_owners_map[asset_name]["owners"].append(owner_name)
 
         flattened_assets = list(asset_owners_map.values())
-        logging.info(flattened_assets)
+        logger.debug(flattened_assets)
         return flattened_assets
