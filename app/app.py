@@ -10,6 +10,7 @@ from app.main.config.jinja_config import configure_jinja
 from app.main.config.limiter_config import configure_limiter
 from app.main.config.logging_config import configure_logging
 from app.main.config.routes_config import configure_routes
+from app.main.services.auth0_service import Auth0_Service
 
 logger = logging.getLogger(__name__)
 
@@ -28,6 +29,13 @@ def create_app(is_rate_limit_enabled=True) -> Flask:
     configure_limiter(app, is_rate_limit_enabled)
     configure_jinja(app)
     configure_cors(app)
+
+    app.auth0_service = Auth0_Service(
+        app,
+        app_config.auth0.client_id,
+        app_config.auth0.client_secret,
+        app_config.auth0.domain,
+    )
 
     database_service = DatabaseService()
     database_service.create_asset_table()
