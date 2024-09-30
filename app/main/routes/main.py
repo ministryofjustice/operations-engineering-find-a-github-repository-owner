@@ -1,7 +1,6 @@
 import logging
-from os import name
+from app.main.middleware.auth import requires_auth
 from app.main.services.database_service import DatabaseService
-from plotly import data
 import plotly.express as px
 import pandas as pd
 from flask import Blueprint, render_template, request
@@ -34,6 +33,7 @@ def generate_pie_chart(repositories: list[dict]):
 
 
 @main.route("/", methods=["GET", "POST"])
+@requires_auth
 def index():
     repositories = DatabaseService().find_all_repositories()
     if request.method == "POST":

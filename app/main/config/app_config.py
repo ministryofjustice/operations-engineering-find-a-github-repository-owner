@@ -19,6 +19,11 @@ def __get_env_var_as_boolean(name: str) -> bool | None:
 
 
 app_config = SimpleNamespace(
+    auth0=SimpleNamespace(
+        domain=__get_env_var("AUTH0_DOMAIN"),
+        client_id=__get_env_var("AUTH0_CLIENT_ID"),
+        client_secret=__get_env_var("AUTH0_CLIENT_SECRET"),
+    ),
     flask=SimpleNamespace(
         app_secret_key=__get_env_var("APP_SECRET_KEY"),
     ),

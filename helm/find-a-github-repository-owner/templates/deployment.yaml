@@ -21,6 +21,12 @@ spec:
           image: "{{ .Values.app.deployment.image.repository }}:{{ .Values.app.deployment.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: IfNotPresent
           env:
+            - name: AUTH0_DOMAIN
+              value: {{ .Values.app.deployment.env.AUTH0_DOMAIN | quote }}
+            - name: AUTH0_CLIENT_ID
+              value: {{ .Values.app.deployment.env.AUTH0_CLIENT_ID | quote }}
+            - name: AUTH0_CLIENT_SECRET
+              value: {{ .Values.app.deployment.env.AUTH0_CLIENT_SECRET | quote }}
             - name: APP_SECRET_KEY
               value: {{ .Values.app.deployment.env.APP_SECRET_KEY | quote }}
             - name: FLASK_DEBUG

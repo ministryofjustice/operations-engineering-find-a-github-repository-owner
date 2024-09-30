@@ -21,6 +21,8 @@ env:
   POSTGRES_HOST: ${{ secrets.DEV_POSTGRES_HOST }}
   POSTGRES_PORT: ${{ secrets.DEV_POSTGRES_PORT }}
   ADMIN_GITHUB_TOKEN: ${{ secrets.MOJ_GITHUB_READ_BOT_PAT }}
+  AUTH0_CLIENT_ID: ${{ secrets.DEV_AUTH0_CLIENT_ID }}
+  AUTH0_CLIENT_SECRET: ${{ secrets.DEV_AUTH0_CLIENT_SECRET }}
 
 jobs:
   build-push:
@@ -69,6 +71,8 @@ jobs:
             --timeout 10m \
             --namespace ${KUBE_NAMESPACE} \
             --values=helm/find-a-github-repository-owner/values-dev.yaml \
+            --set app.deployment.env.AUTH0_CLIENT_ID=${AUTH0_CLIENT_ID} \
+            --set app.deployment.env.AUTH0_CLIENT_SECRET=${AUTH0_CLIENT_SECRET} \
             --set app.deployment.env.APP_SECRET_KEY=${FLASK_APP_SECRET} \
             --set app.deployment.env.POSTGRES_USER=${POSTGRES_USER} \
             --set app.deployment.env.POSTGRES_PASSWORD=${POSTGRES_PASSWORD} \
