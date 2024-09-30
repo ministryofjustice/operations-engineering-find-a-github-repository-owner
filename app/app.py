@@ -30,13 +30,6 @@ def create_app(is_rate_limit_enabled=True) -> Flask:
     configure_jinja(app)
     configure_cors(app)
 
-    app.auth0_service = Auth0_Service(
-        app,
-        app_config.auth0.client_id,
-        app_config.auth0.client_secret,
-        app_config.auth0.domain,
-    )
-
     database_service = DatabaseService()
     database_service.create_asset_table()
     database_service.create_owner_table()
