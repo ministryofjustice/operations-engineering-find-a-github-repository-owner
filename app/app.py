@@ -10,7 +10,6 @@ from app.main.config.jinja_config import configure_jinja
 from app.main.config.limiter_config import configure_limiter
 from app.main.config.logging_config import configure_logging
 from app.main.config.routes_config import configure_routes
-from app.main.services.auth0_service import Auth0_Service
 
 logger = logging.getLogger(__name__)
 
