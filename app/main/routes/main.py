@@ -32,8 +32,8 @@ def generate_pie_chart(repositories: list[dict]):
     return fig.to_html(full_html=False)
 
 
-@requires_auth
 @main.route("/", methods=["GET", "POST"])
+@requires_auth
 def index():
     repositories = DatabaseService().find_all_repositories()
     if request.method == "POST":
