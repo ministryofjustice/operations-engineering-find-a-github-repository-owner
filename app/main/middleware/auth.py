@@ -14,7 +14,7 @@ def requires_auth(function_f):
     def decorated(*args, **kwargs):
         logger.debug("requires_auth()")
         if "user" not in session:
-            return redirect("/")
+            return redirect("/auth/login")
         return function_f(*args, **kwargs)
 
     return decorated
