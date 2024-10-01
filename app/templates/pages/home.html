@@ -11,20 +11,71 @@
   {{ pie_chart | safe }}
 
   <h3 class="govuk-heading-m">Filter Results</h3>
-  <div class="moj-search">
-    <form method="post">
-      <div class="govuk-form-group">
-        <div id="search-hint" class="govuk-hint moj-search__hint ">
-          You can filter by owner name
+
+  <form method="get">
+    <div class="moj-filter">
+      <div class="moj-filter__header">
+        <div class="moj-filter__header-title">
+          <h2 class="govuk-heading-m">Filter</h2>
         </div>
-        <input class="govuk-input moj-search__input " id="search" name="search" type="search" value="{{ search_term }}" aria-describedby="search-hint">
+        <div class="moj-filter__header-action">
+        </div>
       </div>
 
-      <button type="submit" class="govuk-button moj-search__button " data-module="govuk-button">
-        Filter
-      </button>
-    </form>
-  </div>
+      <div class="moj-filter__content">
+        <div class="moj-filter__options">
+          <button type="submit" class="govuk-button" data-module="govuk-button" data-test-id="submit-button">
+            Apply filters
+          </button>
+          <div class="govuk-form-group">
+            <label class="govuk-label govuk-label--m" for="repository-name">
+              Repository Name
+            </label>
+            <input class="govuk-input" id="repository-name" name="repository-name" type="text" value="{{ repository_name }}">
+          </div>
+          <div class="govuk-form-group">
+            <fieldset class="govuk-fieldset">
+              <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
+                Owner
+              </legend>
+              <div class="govuk-checkboxes govuk-checkboxes--small" data-module="govuk-checkboxes">
+                <div class="govuk-checkboxes__item">
+                  <input class="govuk-checkboxes__input" id="type" name="owner" type="checkbox" value="STUBBED_PLATFORMS_AND_ARCHITECTURES" {% if "STUBBED_PLATFORMS_AND_ARCHITECTURES" in owners %} checked {% endif %}>
+                  <label class="govuk-label govuk-checkboxes__label" for="type">
+                    STUBBED_PLATFORMS_AND_ARCHITECTURES
+                  </label>
+                </div>
+                <div class="govuk-checkboxes__item">
+                  <input class="govuk-checkboxes__input" id="type-2" name="owner" type="checkbox" value="STUBBED_HMPPS" {% if "STUBBED_HMPPS" in owners %} checked {% endif %}>
+                  <label class="govuk-label govuk-checkboxes__label" for="type-2">
+                    STUBBED_HMPPS
+                  </label>
+                </div>
+                <div class="govuk-checkboxes__item">
+                  <input class="govuk-checkboxes__input" id="type-3" name="owner" type="checkbox" value="STUBBED_OPG" {% if "STUBBED_OPG" in owners %} checked {% endif %}>
+                  <label class="govuk-label govuk-checkboxes__label" for="type-3">
+                    STUBBED_OPG
+                  </label>
+                </div>
+                <div class="govuk-checkboxes__item">
+                  <input class="govuk-checkboxes__input" id="type-4" name="owner" type="checkbox" value="STUBBED_LAA" {% if "STUBBED_LAA" in owners %} checked {% endif %}>
+                  <label class="govuk-label govuk-checkboxes__label" for="type-4">
+                    STUBBED_LAA
+                  </label>
+                </div>
+                <div class="govuk-checkboxes__item">
+                  <input class="govuk-checkboxes__input" id="type-5" name="owner" type="checkbox" value="NO_OWNER" {% if "NO_OWNER" in owners %} checked {% endif %}>
+                  <label class="govuk-label govuk-checkboxes__label" for="type-5">
+                    No Owner
+                  </label>
+                </div>
+              </div>
+            </fieldset>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
 
   <table class="govuk-table" data-module="moj-sortable-table">
     <thead class="govuk-table__head">

@@ -5,6 +5,10 @@ services:
     image: "find-a-github-repository-owner"
     container_name: "find-a-github-repository-owner"
     environment:
+      # App
+      AUTH_ENABLED: false
+      ADD_STUB_VALUES_TO_DATABASE: true
+
       # Flask
       APP_SECRET_KEY: dev
       FLASK_DEBUG: true

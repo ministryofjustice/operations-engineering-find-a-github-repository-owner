@@ -6,19 +6,26 @@ def __get_env_var(name: str) -> str | None:
     return os.getenv(name)
 
 
-def __get_env_var_as_boolean(name: str) -> bool | None:
+def __get_env_var_as_boolean(name: str, default: bool) -> bool | None:
     value = __get_env_var(name)
 
     if value is None:
-        return False
+        return default
 
     if value.lower() == "true":
         return True
 
-    return False
+    if value.lower() == "false":
+        return False
+
+    return default
 
 
 app_config = SimpleNamespace(
+    add_stub_values_to_database=__get_env_var_as_boolean(
+        "ADD_STUB_VALUES_TO_DATABASE", default=False
+    ),
+    auth_enabled=__get_env_var_as_boolean("AUTH_ENABLED", default=True),
     auth0=SimpleNamespace(
         domain=__get_env_var("AUTH0_DOMAIN"),
         client_id=__get_env_var("AUTH0_CLIENT_ID"),

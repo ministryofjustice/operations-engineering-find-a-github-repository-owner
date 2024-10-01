@@ -33,8 +33,9 @@ def create_app(is_rate_limit_enabled=True) -> Flask:
     database_service.create_asset_table()
     database_service.create_owner_table()
     database_service.create_relationship_table()
-    database_service.clean_all_stubbed_values()
-    # database_service.add_stubbed_values()
+    if app_config.add_stub_values_to_database:
+        database_service.clean_all_stubbed_values()
+        database_service.add_stubbed_values()
 
     logger.info("Running app...")
 
