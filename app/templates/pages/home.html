@@ -38,38 +38,22 @@
               <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
                 Owner
               </legend>
+              {% for owner in owners %}
+                <div class="govuk-checkboxes govuk-checkboxes--small" data-module="govuk-checkboxes">
+                  <div class="govuk-checkboxes__item">
+                    <input class="govuk-checkboxes__input" id="{{ owner }}" name="owner" type="checkbox" value="{{ owner }}" {% if owner in selected_owners %} checked {% endif %}>
+                    <label class="govuk-label govuk-checkboxes__label" for="{{ owner }}">
+                      {{ owner }}
+                    </label>
+                  </div>
+              {% endfor %}
               <div class="govuk-checkboxes govuk-checkboxes--small" data-module="govuk-checkboxes">
                 <div class="govuk-checkboxes__item">
-                  <input class="govuk-checkboxes__input" id="type" name="owner" type="checkbox" value="STUBBED_PLATFORMS_AND_ARCHITECTURES" {% if "STUBBED_PLATFORMS_AND_ARCHITECTURES" in owners %} checked {% endif %}>
-                  <label class="govuk-label govuk-checkboxes__label" for="type">
-                    STUBBED_PLATFORMS_AND_ARCHITECTURES
-                  </label>
-                </div>
-                <div class="govuk-checkboxes__item">
-                  <input class="govuk-checkboxes__input" id="type-2" name="owner" type="checkbox" value="STUBBED_HMPPS" {% if "STUBBED_HMPPS" in owners %} checked {% endif %}>
-                  <label class="govuk-label govuk-checkboxes__label" for="type-2">
-                    STUBBED_HMPPS
-                  </label>
-                </div>
-                <div class="govuk-checkboxes__item">
-                  <input class="govuk-checkboxes__input" id="type-3" name="owner" type="checkbox" value="STUBBED_OPG" {% if "STUBBED_OPG" in owners %} checked {% endif %}>
-                  <label class="govuk-label govuk-checkboxes__label" for="type-3">
-                    STUBBED_OPG
-                  </label>
-                </div>
-                <div class="govuk-checkboxes__item">
-                  <input class="govuk-checkboxes__input" id="type-4" name="owner" type="checkbox" value="STUBBED_LAA" {% if "STUBBED_LAA" in owners %} checked {% endif %}>
-                  <label class="govuk-label govuk-checkboxes__label" for="type-4">
-                    STUBBED_LAA
-                  </label>
-                </div>
-                <div class="govuk-checkboxes__item">
-                  <input class="govuk-checkboxes__input" id="type-5" name="owner" type="checkbox" value="NO_OWNER" {% if "NO_OWNER" in owners %} checked {% endif %}>
-                  <label class="govuk-label govuk-checkboxes__label" for="type-5">
+                  <input class="govuk-checkboxes__input" id="NO_OWNER" name="owner" type="checkbox" value="NO_OWNER" {% if "NO_OWNER" in selected_owners %} checked {% endif %}>
+                  <label class="govuk-label govuk-checkboxes__label" for="NO_OWNER">
                     No Owner
                   </label>
                 </div>
-              </div>
             </fieldset>
           </div>
         </div>
