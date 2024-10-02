@@ -1,5 +1,6 @@
 import logging
 from app.main.middleware.auth import requires_auth
+from app.main.services import database_service
 from app.main.services.database_service import DatabaseService
 import plotly.express as px
 import pandas as pd
@@ -35,36 +36,40 @@ def generate_pie_chart(repositories: list[dict]):
 @main.route("/", methods=["GET", "POST"])
 @requires_auth
 def index():
-    repositories = DatabaseService().find_all_repositories()
-    if request.method == "POST":
-        search_term = request.form.get("search")
-        if search_term.lower() == "no owner":
-            filtered_results = [
-                repository for repository in repositories if not repository["owners"]
-            ]
-        else:
-            filtered_results = (
-                [
-                    repository
-                    for repository in repositories
-                    if search_term in repository["owners"]
-                ]
-                if search_term
-                else repositories
-            )
+    database_service = DatabaseService()
+    repositories = database_service.find_all_repositories()
+    owners = database_service.find_all_owners()
+    repository_name = request.args.get("repository-name")
+    selected_owners = request.args.getlist("owner")
 
-        logging.info(search_term)
-        logging.info(filtered_results)
-        return render_template(
-            "pages/home.html",
-            repositories=filtered_results,
-            pie_chart=generate_pie_chart(filtered_results)
-            if filtered_results
-            else None,
-            search_term=search_term,
-        )
+    filtered_repositories_by_name = []
+    if repository_name:
+        for repository in repositories:
+            if repository_name and repository_name in repository["name"]:
+                filtered_repositories_by_name = filtered_repositories_by_name + [
+                    repository
+                ]
+    else:
+        filtered_repositories_by_name = repositories
+
+    filtered_repositories = []
+    if repository_name or selected_owners:
+        for repository in filtered_repositories_by_name:
+            if "NO_OWNER" in selected_owners and not repository["owners"]:
+                filtered_repositories = filtered_repositories + [repository]
+            for owner in selected_owners:
+                if owner in repository["owners"]:
+                    filtered_repositories = filtered_repositories + [repository]
+    else:
+        filtered_repositories = filtered_repositories_by_name
+
     return render_template(
         "pages/home.html",
-        repositories=repositories,
-        pie_chart=generate_pie_chart(repositories) if repositories else None,
+        repositories=filtered_repositories,
+        pie_chart=generate_pie_chart(filtered_repositories)
+        if filtered_repositories
+        else None,
+        repository_name=repository_name if repository_name else "",
+        selected_owners=selected_owners if selected_owners else owners + ["NO_OWNER"],
+        owners=owners,
     )

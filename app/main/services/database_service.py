@@ -236,3 +236,18 @@ class DatabaseService:
         flattened_assets = list(asset_owners_map.values())
         logger.debug(flattened_assets)
         return flattened_assets
+
+    def find_all_owners(self):
+        owners = (
+            self.__execute_query("""
+            SELECT name
+            FROM owner
+        """)
+            or []
+        )
+
+        response = []
+        for name in owners:
+            response += name
+
+        return response

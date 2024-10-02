@@ -11,20 +11,55 @@
   {{ pie_chart | safe }}
 
   <h3 class="govuk-heading-m">Filter Results</h3>
-  <div class="moj-search">
-    <form method="post">
-      <div class="govuk-form-group">
-        <div id="search-hint" class="govuk-hint moj-search__hint ">
-          You can filter by owner name
+
+  <form method="get">
+    <div class="moj-filter">
+      <div class="moj-filter__header">
+        <div class="moj-filter__header-title">
+          <h2 class="govuk-heading-m">Filter</h2>
         </div>
-        <input class="govuk-input moj-search__input " id="search" name="search" type="search" value="{{ search_term }}" aria-describedby="search-hint">
+        <div class="moj-filter__header-action">
+        </div>
       </div>
 
-      <button type="submit" class="govuk-button moj-search__button " data-module="govuk-button">
-        Filter
-      </button>
-    </form>
-  </div>
+      <div class="moj-filter__content">
+        <div class="moj-filter__options">
+          <button type="submit" class="govuk-button" data-module="govuk-button" data-test-id="submit-button">
+            Apply filters
+          </button>
+          <div class="govuk-form-group">
+            <label class="govuk-label govuk-label--m" for="repository-name">
+              Repository Name
+            </label>
+            <input class="govuk-input" id="repository-name" name="repository-name" type="text" value="{{ repository_name }}">
+          </div>
+          <div class="govuk-form-group">
+            <fieldset class="govuk-fieldset">
+              <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
+                Owner
+              </legend>
+              {% for owner in owners %}
+                <div class="govuk-checkboxes govuk-checkboxes--small" data-module="govuk-checkboxes">
+                  <div class="govuk-checkboxes__item">
+                    <input class="govuk-checkboxes__input" id="{{ owner }}" name="owner" type="checkbox" value="{{ owner }}" {% if owner in selected_owners %} checked {% endif %}>
+                    <label class="govuk-label govuk-checkboxes__label" for="{{ owner }}">
+                      {{ owner }}
+                    </label>
+                  </div>
+              {% endfor %}
+              <div class="govuk-checkboxes govuk-checkboxes--small" data-module="govuk-checkboxes">
+                <div class="govuk-checkboxes__item">
+                  <input class="govuk-checkboxes__input" id="NO_OWNER" name="owner" type="checkbox" value="NO_OWNER" {% if "NO_OWNER" in selected_owners %} checked {% endif %}>
+                  <label class="govuk-label govuk-checkboxes__label" for="NO_OWNER">
+                    No Owner
+                  </label>
+                </div>
+            </fieldset>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
 
   <table class="govuk-table" data-module="moj-sortable-table">
     <thead class="govuk-table__head">
