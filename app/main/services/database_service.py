@@ -18,14 +18,13 @@ class DatabaseService:
             host=app_config.postgres.host,
             port=app_config.postgres.port,
         ) as conn:
-            logger.debug("Executing query...")
             cur = conn.cursor()
             cur.execute(sql, values)
             data = None
             try:
                 data = cur.fetchall()
-            except Exception as e:
-                logger.debug(e)
+            except Exception:
+                pass
             conn.commit()
             return data
 
@@ -212,7 +211,8 @@ class DatabaseService:
         response = self.__execute_query("""
             SELECT 
                 a.name AS asset_name,
-                o.name AS owner_name
+                o.name AS owner_name,
+                r.type AS relationship_type
             FROM 
                 asset a
             LEFT JOIN 
@@ -223,18 +223,17 @@ class DatabaseService:
                 a.id, o.id
         """)
 
-        logger.debug(response)
-
         asset_owners_map = {}
-        for asset_name, owner_name in response:
+        for asset_name, owner_name, relationship_type in response:
             if asset_name not in asset_owners_map:
                 asset_owners_map[asset_name] = {"name": asset_name, "owners": []}
 
-            if owner_name:
-                asset_owners_map[asset_name]["owners"].append(owner_name)
+            if owner_name and relationship_type:
+                asset_owners_map[asset_name]["owners"].append(
+                    {"owner_name": owner_name, "relationship_type": relationship_type}
+                )
 
         flattened_assets = list(asset_owners_map.values())
-        logger.debug(flattened_assets)
         return flattened_assets
 
     def find_all_owners(self):

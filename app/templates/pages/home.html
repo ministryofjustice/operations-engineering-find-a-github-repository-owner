@@ -7,8 +7,16 @@
 {% block content %}
   <h1 class="govuk-heading-xl">Find a GitHub Repository Owner</h1>
 
-  <h2 class="govuk-heading-l">Repositories by Owners</h2>
-  {{ pie_chart | safe }}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-one-half">
+      <h3 class="govuk-heading-l">Repositories by Owners Test</h3>
+      {{ pie_chart | safe }}
+    </div>
+    <div class="govuk-grid-column-one-half">
+      <h3 class="govuk-heading-l">Repositories by Admin Access</h3>
+      {{ pie_chart_of_admin_access | safe }}
+    </div>
+  </div>
 
   <h3 class="govuk-heading-m">Filter Results</h3>
 
@@ -56,6 +64,23 @@
                 </div>
             </fieldset>
           </div>
+          <div class="govuk-form-group">
+            <fieldset class="govuk-fieldset">
+              <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
+                Access Level
+              </legend>
+              {% for access_level in access_levels %}
+              <div class="govuk-checkboxes govuk-checkboxes--small" data-module="govuk-checkboxes">
+                <div class="govuk-checkboxes__item">
+                  <input class="govuk-checkboxes__input" id="{{ access_level }}" name="access-levels" type="checkbox" value="{{ access_level }}" {% if access_level in selected_access_levels %} checked {% endif %}>
+                  <label class="govuk-label govuk-checkboxes__label" for="{{ access_level }}">
+                    {{ access_level }}
+                  </label>
+                </div>
+              </div>
+              {% endfor %}
+            </fieldset>
+          </div>
         </div>
       </div>
     </div>
@@ -73,7 +98,7 @@
       {% for repository in repositories %}
         <tr class="govuk-table__row">
           <td class="govuk-table__cell"><a href="https://github.com/ministryofjustice/{{ repository["name"] }}" rel="noreferrer noopener" target="_blank" class="govuk-link">{{ repository["name"] }}</a></td>
-          <td class="govuk-table__cell">{% for owner in repository["owners"] %} {{ owner }}{% if loop.nextitem %}, {% endif %} {% endfor %}</td>
+          <td class="govuk-table__cell">{% for owner in repository["owners"] %} {{ owner["owner_name"] }} has {{ owner["relationship_type"] }}{% if loop.nextitem %}, {% endif %} {% endfor %}</td>
         </tr>
       {% endfor %}
     </tbody>
