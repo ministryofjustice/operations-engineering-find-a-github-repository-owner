@@ -66,7 +66,18 @@ def main():
 
     for repository in repositories:
         ownersFound = 0
+
         if (
+            "HMPPS Developers" in repository["github_teams_with_admin_access"]
+            or "HMPPS Developers"
+            in repository["github_teams_with_admin_access_parents"]
+        ):
+            database_service.add_relationship_between_asset_and_owner(
+                repository["name"], hmpps_owner_id, "ADMIN_ACCESS"
+            )
+            hmppsRepos.append(repository)
+            ownersFound += 1
+        elif (
             # HMPPS Digital
             "HMPPS Developers" in repository[direct_access_level]
             or "HMPPS Developers" in repository[parent_access_level]
@@ -79,16 +90,34 @@ def main():
             hmppsRepos.append(repository)
             ownersFound += 1
 
-            if (
-                "HMPPS Developers" in repository["github_teams_with_admin_access"]
-                or "HMPPS Developers"
-                in repository["github_teams_with_admin_access_parents"]
-            ):
-                database_service.add_relationship_between_asset_and_owner(
-                    repository["name"], hmpps_owner_id, "ADMIN_ACCESS"
-                )
-
         if (
+            "LAA Technical Architects" in repository["github_teams_with_admin_access"]
+            or "LAA Technical Architects"
+            in repository["github_teams_with_admin_access_parents"]
+            or "LAA Developers" in repository["github_teams_with_admin_access"]
+            or "LAA Developers" in repository["github_teams_with_admin_access_parents"]
+            or "LAA Crime Apps team" in repository["github_teams_with_admin_access"]
+            or "LAA Crime Apps team"
+            in repository["github_teams_with_admin_access_parents"]
+            or "LAA Crime Apply" in repository["github_teams_with_admin_access"]
+            or "LAA Crime Apply" in repository["github_teams_with_admin_access_parents"]
+            or "laa-eligibility-platform"
+            in repository["github_teams_with_admin_access"]
+            or "laa-eligibility-platform"
+            in repository["github_teams_with_admin_access_parents"]
+            or "LAA Get Access" in repository["github_teams_with_admin_access"]
+            or "LAA Get Access" in repository["github_teams_with_admin_access_parents"]
+            or "LAA Payments and Billing"
+            in repository["github_teams_with_admin_access"]
+            or "LAA Payments and Billing"
+            in repository["github_teams_with_admin_access_parents"]
+        ):
+            database_service.add_relationship_between_asset_and_owner(
+                repository["name"], laa_owner_id, "ADMIN_ACCESS"
+            )
+            laaRepos.append(repository)
+            ownersFound += 1
+        elif (
             # LAA Digital
             "LAA Technical Architects" in repository[direct_access_level]
             or "LAA Technical Architects" in repository[parent_access_level]
@@ -113,36 +142,16 @@ def main():
             laaRepos.append(repository)
             ownersFound += 1
 
-            if (
-                "LAA Technical Architects"
-                in repository["github_teams_with_admin_access"]
-                or "LAA Technical Architects"
-                in repository["github_teams_with_admin_access_parents"]
-                or "LAA Developers" in repository["github_teams_with_admin_access"]
-                or "LAA Developers"
-                in repository["github_teams_with_admin_access_parents"]
-                or "LAA Crime Apps team" in repository["github_teams_with_admin_access"]
-                or "LAA Crime Apps team"
-                in repository["github_teams_with_admin_access_parents"]
-                or "LAA Crime Apply" in repository["github_teams_with_admin_access"]
-                or "LAA Crime Apply"
-                in repository["github_teams_with_admin_access_parents"]
-                or "laa-eligibility-platform"
-                in repository["github_teams_with_admin_access"]
-                or "laa-eligibility-platform"
-                in repository["github_teams_with_admin_access_parents"]
-                or "LAA Get Access" in repository["github_teams_with_admin_access"]
-                or "LAA Get Access"
-                in repository["github_teams_with_admin_access_parents"]
-                or "LAA Payments and Billing"
-                in repository["github_teams_with_admin_access"]
-                or "LAA Payments and Billing"
-                in repository["github_teams_with_admin_access_parents"]
-            ):
-                database_service.add_relationship_between_asset_and_owner(
-                    repository["name"], laa_owner_id, "ADMIN_ACCESS"
-                )
         if (
+            "OPG" in repository["github_teams_with_admin_access"]
+            or "OPG" in repository["github_teams_with_admin_access_parents"]
+        ):
+            database_service.add_relationship_between_asset_and_owner(
+                repository["name"], opg_owner_id, "ADMIN_ACCESS"
+            )
+            opgRepos.append(repository)
+            ownersFound += 1
+        elif (
             # OPG Digital
             "OPG" in repository[direct_access_level]
             or "OPG" in repository[parent_access_level]
@@ -155,15 +164,16 @@ def main():
             opgRepos.append(repository)
             ownersFound += 1
 
-            if (
-                "OPG" in repository["github_teams_with_admin_access"]
-                or "OPG" in repository["github_teams_with_admin_access_parents"]
-            ):
-                database_service.add_relationship_between_asset_and_owner(
-                    repository["name"], opg_owner_id, "ADMIN_ACCESS"
-                )
-
         if (
+            "CICA" in repository["github_teams_with_admin_access"]
+            or "CICA" in repository["github_teams_with_admin_access_parents"]
+        ):
+            database_service.add_relationship_between_asset_and_owner(
+                repository["name"], cica_owner_id, "ADMIN_ACCESS"
+            )
+            cicaRepos.append(repository)
+            ownersFound += 1
+        elif (
             # CICA Digital
             "CICA" in repository[direct_access_level]
             or "CICA" in repository[parent_access_level]
@@ -176,14 +186,21 @@ def main():
             cicaRepos.append(repository)
             ownersFound += 1
 
-            if (
-                "CICA" in repository["github_teams_with_admin_access"]
-                or "CICA" in repository["github_teams_with_admin_access_parents"]
-            ):
-                database_service.add_relationship_between_asset_and_owner(
-                    repository["name"], cica_owner_id, "ADMIN_ACCESS"
-                )
         if (
+            "Central Digital Product Team"
+            in repository["github_teams_with_admin_access"]
+            or "Central Digital Product Team"
+            in repository["github_teams_with_admin_access_parents"]
+            or "tactical-products" in repository["github_teams_with_admin_access"]
+            or "tactical-products"
+            in repository["github_teams_with_admin_access_parents"]
+        ):
+            database_service.add_relationship_between_asset_and_owner(
+                repository["name"], central_digital_owner_id, "ADMIN_ACCESS"
+            )
+            centralDigitalRepos.append(repository)
+            ownersFound += 1
+        elif (
             # Central Digital
             "Central Digital Product Team" in repository[direct_access_level]
             or "Central Digital Product Team" in repository[parent_access_level]
@@ -196,20 +213,35 @@ def main():
             centralDigitalRepos.append(repository)
             ownersFound += 1
 
-            if (
-                "Central Digital Product Team"
-                in repository["github_teams_with_admin_access"]
-                or "Central Digital Product Team"
-                in repository["github_teams_with_admin_access_parents"]
-                or "tactical-products" in repository["github_teams_with_admin_access"]
-                or "tactical-products"
-                in repository["github_teams_with_admin_access_parents"]
-            ):
-                database_service.add_relationship_between_asset_and_owner(
-                    repository["name"], central_digital_owner_id, "ADMIN_ACCESS"
-                )
-
-        if (
+        if contains_one_or_more(
+            [
+                ### Hosting Platforms
+                "modernisation-platform",
+                "operations-engineering",
+                "aws-root-account-admin-team",
+                "WebOps",  # Cloud Platform
+                "Studio Webops",  # Digital Studio Operations (DSO)
+                ### Data Platforms
+                "analytical-platform",
+                "data-engineering",
+                "analytics-hq",
+                "data-catalogue",
+                "data-platform",
+                "data-and-analytics-engineering",
+                "observability-platform",
+                ### Publishing Platforms
+                "Form Builder",
+                "Hale platform",
+                "JOTW Content Devs",
+            ],
+            repository["github_teams_with_admin_access"],
+        ):
+            database_service.add_relationship_between_asset_and_owner(
+                repository["name"], central_digital_owner_id, "ADMIN_ACCESS"
+            )
+            platformsAndArchitectureRepos.append(repository)
+            ownersFound += 1
+        elif (
             # Platforms and Architecture https://peoplefinder.service.gov.uk/teams/platforms
             ## Platforms
             contains_one_or_more(
@@ -245,33 +277,20 @@ def main():
             platformsAndArchitectureRepos.append(repository)
             ownersFound += 1
 
-            if contains_one_or_more(
-                [
-                    ### Hosting Platforms
-                    "modernisation-platform",
-                    "operations-engineering",
-                    "aws-root-account-admin-team",
-                    "WebOps",  # Cloud Platform
-                    "Studio Webops",  # Digital Studio Operations (DSO)
-                    ### Data Platforms
-                    "analytical-platform",
-                    "data-engineering",
-                    "analytics-hq",
-                    "data-catalogue",
-                    "data-platform",
-                    "data-and-analytics-engineering",
-                    "observability-platform",
-                    ### Publishing Platforms
-                    "Form Builder",
-                    "Hale platform",
-                    "JOTW Content Devs",
-                ],
-                repository["github_teams_with_admin_access"],
-            ):
-                database_service.add_relationship_between_asset_and_owner(
-                    repository["name"], central_digital_owner_id, "ADMIN_ACCESS"
-                )
         if (
+            "nvvs-devops-admins" in repository["github_teams_with_admin_access"]
+            or "nvvs-devops-admins"
+            in repository["github_teams_with_admin_access_parents"]
+            or "moj-official-techops" in repository["github_teams_with_admin_access"]
+            or "moj-official-techops"
+            in repository["github_teams_with_admin_access_parents"]
+        ):
+            database_service.add_relationship_between_asset_and_owner(
+                repository["name"], cica_owner_id, "ADMIN_ACCESS"
+            )
+            techServicesRepos.append(repository)
+            ownersFound += 1
+        elif (
             # Tech Services
             "nvvs-devops-admins" in repository[direct_access_level]
             or "nvvs-devops-admins" in repository[parent_access_level]
@@ -283,19 +302,6 @@ def main():
             )
             techServicesRepos.append(repository)
             ownersFound += 1
-
-            if (
-                "nvvs-devops-admins" in repository["github_teams_with_admin_access"]
-                or "nvvs-devops-admins"
-                in repository["github_teams_with_admin_access_parents"]
-                or "moj-official-techops"
-                in repository["github_teams_with_admin_access"]
-                or "moj-official-techops"
-                in repository["github_teams_with_admin_access_parents"]
-            ):
-                database_service.add_relationship_between_asset_and_owner(
-                    repository["name"], cica_owner_id, "ADMIN_ACCESS"
-                )
 
         if ownersFound == 0:
             database_service.add_asset_if_name_does_not_exist(
