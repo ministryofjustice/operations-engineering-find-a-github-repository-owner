@@ -13,7 +13,7 @@
       {{ pie_chart | safe }}
     </div>
     <div class="govuk-grid-column-one-half">
-      <h3 class="govuk-heading-l">Repositories by Admin Access</h3>
+      <h3 class="govuk-heading-l">Repositories by Relationship Type</h3>
       {{ pie_chart_of_admin_access | safe }}
     </div>
   </div>
@@ -67,7 +67,7 @@
           <div class="govuk-form-group">
             <fieldset class="govuk-fieldset">
               <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
-                Access Level
+                Relationship Types
               </legend>
               {% for access_level in access_levels %}
               <div class="govuk-checkboxes govuk-checkboxes--small" data-module="govuk-checkboxes">

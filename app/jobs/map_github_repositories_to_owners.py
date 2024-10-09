@@ -237,7 +237,7 @@ def main():
             repository["github_teams_with_admin_access"],
         ):
             database_service.add_relationship_between_asset_and_owner(
-                repository["name"], central_digital_owner_id, "ADMIN_ACCESS"
+                repository["name"], platforms_and_architecture_owner_id, "ADMIN_ACCESS"
             )
             platformsAndArchitectureRepos.append(repository)
             ownersFound += 1
@@ -286,7 +286,7 @@ def main():
             in repository["github_teams_with_admin_access_parents"]
         ):
             database_service.add_relationship_between_asset_and_owner(
-                repository["name"], cica_owner_id, "ADMIN_ACCESS"
+                repository["name"], tech_services_owner_id, "ADMIN_ACCESS"
             )
             techServicesRepos.append(repository)
             ownersFound += 1

@@ -20,7 +20,7 @@ def generate_pie_chart_of_admin_access(repositories: list[dict]):
             if "relationship_type" in owner
         ]
         if owners
-        else ["Other Access"]
+        else ["No relationships"]
     )
     all_owners = [owner for owners_list in dataframe["owners"] for owner in owners_list]
     owner_counts = pd.DataFrame(
