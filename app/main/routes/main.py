@@ -79,37 +79,35 @@ def index():
 
     filtered_repositories = []
     if selected_owners:
-        for repository_here in filtered_repositories_by_name:
-            if "NO_OWNER" in selected_owners and not repository_here["owners"]:
-                filtered_repositories = filtered_repositories + [repository_here]
-            for owner in selected_owners:
-                owner_names = [o["owner_name"] for o in repository_here["owners"]]
-                if owner in owner_names:
-                    filtered_repositories = filtered_repositories + [repository_here]
+        for repository in filtered_repositories_by_name:
+            if "NO_OWNER" in selected_owners and not repository["owners"]:
+                filtered_repositories = filtered_repositories + [repository]
+                continue
+
+            selected_owners_full = []
+            for owner in repository["owners"]:
+                if owner["owner_name"] in selected_owners:
+                    selected_owners_full += [owner]
+            for owner in selected_owners_full:
+                has_admin_access = (
+                    True if "ADMIN_ACCESS" in owner.get("relationship_type") else False
+                )
+
+                if (
+                    "ADMIN" in selected_access_levels
+                    and has_admin_access
+                    or "OTHER" in selected_access_levels
+                    and not has_admin_access
+                ):
+                    repositories_filtered_by_access_level = filtered_repositories + [
+                        repository
+                    ]
+                    filtered_repositories = filtered_repositories + [repository]
                     break
     else:
         filtered_repositories = filtered_repositories_by_name
 
-    repositories_filtered_by_access_level = []
-    if selected_access_levels:
-        for repository in filtered_repositories:
-            owner_relationships = [o["relationship_type"] for o in repository["owners"]]
-            has_admin_access = False
-            for relationship in owner_relationships:
-                if "ADMIN_ACCESS" in relationship:
-                    has_admin_access = True
-
-            if (
-                "ADMIN" in selected_access_levels
-                and has_admin_access
-                or "OTHER" in selected_access_levels
-                and not has_admin_access
-            ):
-                repositories_filtered_by_access_level = (
-                    repositories_filtered_by_access_level + [repository]
-                )
-    else:
-        repositories_filtered_by_access_level = filtered_repositories
+    repositories_filtered_by_access_level = filtered_repositories
 
     return render_template(
         "pages/home.html",
