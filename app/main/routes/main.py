@@ -99,8 +99,11 @@ def index():
                 if "ADMIN_ACCESS" in relationship:
                     has_admin_access = True
 
-            if ("ADMIN" in selected_access_levels and has_admin_access) or (
-                "OTHER" in selected_access_levels and not has_admin_access
+            if (
+                "ADMIN" in selected_access_levels
+                and has_admin_access
+                or "OTHER" in selected_access_levels
+                and not has_admin_access
             ):
                 repositories_filtered_by_access_level = (
                     repositories_filtered_by_access_level + [repository]

@@ -125,17 +125,20 @@ class DatabaseService:
             )
             self.add_relationship(type, asset_id, owner_id)
 
-    def add_relationship_between_asset_and_owner(self, asset_name: str, owner_id: int):
+    def add_relationship_between_asset_and_owner(
+        self, asset_name: str, owner_id: int, type: str = "OTHER"
+    ):
         self.add_asset_if_name_does_not_exist("REPOSITORY", asset_name)
         asset_id, _, _ = self.find_asset_by_name(asset_name)[0]
 
         self.update_relationship(
-            "MAPPED",
+            "OTHER",
             asset_id,
             owner_id,
         )
 
     def add_stubbed_values(self):
+        logger.info("Adding Stubs...")
         self.add_owner("STUBBED_PLATFORMS_AND_ARCHITECTURES")
         panda_owner_id, _ = self.find_owner_by_name(
             "STUBBED_PLATFORMS_AND_ARCHITECTURES"
@@ -175,7 +178,7 @@ class DatabaseService:
         laa_api_asset_id, _, _ = self.find_asset_by_name("laa-api")[0]
 
         self.add_relationship(
-            "STUBBED_OWNER_HAS_ADMIN_ACCESS",
+            "STUBBED_OTHER",
             operations_engineering_asset_id,
             panda_owner_id,
         )
