@@ -28,7 +28,7 @@ def main():
     logger.info("Running...")
     database_service = DatabaseService()
     github_service = GithubService(app_config.github.token)
-    repositories = github_service.get_all_repositories(limit=100)
+    repositories = github_service.get_all_repositories()
 
     hmpps_owner_id, _ = database_service.find_owner_by_name("HMPPS")[0]
     laa_owner_id, _ = database_service.find_owner_by_name("LAA")[0]
