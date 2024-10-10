@@ -54,19 +54,7 @@ def main():
         else "github_teams_with_any_access_parents"
     )
 
-    unownedRepos = []
-    reposWithMultipleOwners = []
-    hmppsRepos = []
-    laaRepos = []
-    opgRepos = []
-    cicaRepos = []
-    centralDigitalRepos = []
-    platformsAndArchitectureRepos = []
-    techServicesRepos = []
-
     for repository in repositories:
-        ownersFound = 0
-
         if (
             "HMPPS Developers" in repository["github_teams_with_admin_access"]
             or "HMPPS Developers"
@@ -75,8 +63,6 @@ def main():
             database_service.add_relationship_between_asset_and_owner(
                 repository["name"], hmpps_owner_id, "ADMIN_ACCESS"
             )
-            hmppsRepos.append(repository)
-            ownersFound += 1
         elif (
             # HMPPS Digital
             "HMPPS Developers" in repository[direct_access_level]
@@ -87,8 +73,6 @@ def main():
             database_service.add_relationship_between_asset_and_owner(
                 repository["name"], hmpps_owner_id
             )
-            hmppsRepos.append(repository)
-            ownersFound += 1
 
         if (
             "LAA Technical Architects" in repository["github_teams_with_admin_access"]
@@ -115,8 +99,6 @@ def main():
             database_service.add_relationship_between_asset_and_owner(
                 repository["name"], laa_owner_id, "ADMIN_ACCESS"
             )
-            laaRepos.append(repository)
-            ownersFound += 1
         elif (
             # LAA Digital
             "LAA Technical Architects" in repository[direct_access_level]
@@ -139,8 +121,6 @@ def main():
             database_service.add_relationship_between_asset_and_owner(
                 repository["name"], laa_owner_id
             )
-            laaRepos.append(repository)
-            ownersFound += 1
 
         if (
             "OPG" in repository["github_teams_with_admin_access"]
@@ -149,8 +129,6 @@ def main():
             database_service.add_relationship_between_asset_and_owner(
                 repository["name"], opg_owner_id, "ADMIN_ACCESS"
             )
-            opgRepos.append(repository)
-            ownersFound += 1
         elif (
             # OPG Digital
             "OPG" in repository[direct_access_level]
@@ -171,8 +149,6 @@ def main():
             database_service.add_relationship_between_asset_and_owner(
                 repository["name"], cica_owner_id, "ADMIN_ACCESS"
             )
-            cicaRepos.append(repository)
-            ownersFound += 1
         elif (
             # CICA Digital
             "CICA" in repository[direct_access_level]
@@ -183,8 +159,6 @@ def main():
             database_service.add_relationship_between_asset_and_owner(
                 repository["name"], cica_owner_id
             )
-            cicaRepos.append(repository)
-            ownersFound += 1
 
         if (
             "Central Digital Product Team"
@@ -198,8 +172,6 @@ def main():
             database_service.add_relationship_between_asset_and_owner(
                 repository["name"], central_digital_owner_id, "ADMIN_ACCESS"
             )
-            centralDigitalRepos.append(repository)
-            ownersFound += 1
         elif (
             # Central Digital
             "Central Digital Product Team" in repository[direct_access_level]
@@ -210,8 +182,6 @@ def main():
             database_service.add_relationship_between_asset_and_owner(
                 repository["name"], central_digital_owner_id
             )
-            centralDigitalRepos.append(repository)
-            ownersFound += 1
 
         if contains_one_or_more(
             [
@@ -239,8 +209,6 @@ def main():
             database_service.add_relationship_between_asset_and_owner(
                 repository["name"], platforms_and_architecture_owner_id, "ADMIN_ACCESS"
             )
-            platformsAndArchitectureRepos.append(repository)
-            ownersFound += 1
         elif (
             # Platforms and Architecture https://peoplefinder.service.gov.uk/teams/platforms
             ## Platforms
@@ -274,8 +242,6 @@ def main():
             database_service.add_relationship_between_asset_and_owner(
                 repository["name"], platforms_and_architecture_owner_id
             )
-            platformsAndArchitectureRepos.append(repository)
-            ownersFound += 1
 
         if (
             "nvvs-devops-admins" in repository["github_teams_with_admin_access"]
@@ -288,8 +254,6 @@ def main():
             database_service.add_relationship_between_asset_and_owner(
                 repository["name"], tech_services_owner_id, "ADMIN_ACCESS"
             )
-            techServicesRepos.append(repository)
-            ownersFound += 1
         elif (
             # Tech Services
             "nvvs-devops-admins" in repository[direct_access_level]
@@ -300,97 +264,11 @@ def main():
             database_service.add_relationship_between_asset_and_owner(
                 repository["name"], tech_services_owner_id
             )
-            techServicesRepos.append(repository)
-            ownersFound += 1
 
-        if ownersFound == 0:
-            database_service.add_asset_if_name_does_not_exist(
-                "REPOSITORY", repository["name"]
-            )
-            unownedRepoCount = unownedRepos.append(repository)
-
-        if ownersFound > 1:
-            reposWithMultipleOwners.append(repository)
-
-    unownedRepoCount = len(unownedRepos)
-    hmppsRepoCount = len(hmppsRepos)
-    laaRepoCount = len(laaRepos)
-    opgRepoCount = len(opgRepos)
-    cicaRepoCount = len(cicaRepos)
-    centralDigitalRepoCount = len(centralDigitalRepos)
-    platformsAndArchitectureRepoCount = len(platformsAndArchitectureRepos)
-    techServicesRepoCount = len(techServicesRepos)
-    reposWithMultipleOwnersCount = len(reposWithMultipleOwners)
-    totalRepositories = len(repositories)
-    totalFound = totalRepositories - unownedRepoCount
-
-    logger.debug(
-        json.dumps(
-            {
-                "totals": {
-                    "totalRepos": totalRepositories,
-                    "totalReposWithFoundOwners": [
-                        totalFound,
-                        convert_to_percentage(totalFound, totalRepositories),
-                    ],
-                    "reposWithMultipleOwnersCount": [
-                        reposWithMultipleOwnersCount,
-                        convert_to_percentage(
-                            reposWithMultipleOwnersCount, totalRepositories
-                        ),
-                    ],
-                    "unownedRepoCount": [
-                        unownedRepoCount,
-                        convert_to_percentage(unownedRepoCount, totalRepositories),
-                    ],
-                    "hmppsRepoCount": [
-                        hmppsRepoCount,
-                        convert_to_percentage(hmppsRepoCount, totalRepositories),
-                    ],
-                    "laaRepoCount": [
-                        laaRepoCount,
-                        convert_to_percentage(laaRepoCount, totalRepositories),
-                    ],
-                    "opgRepoCount": [
-                        opgRepoCount,
-                        convert_to_percentage(opgRepoCount, totalRepositories),
-                    ],
-                    "cicaRepoCount": [
-                        cicaRepoCount,
-                        convert_to_percentage(cicaRepoCount, totalRepositories),
-                    ],
-                    "centralDigitalRepoCount": [
-                        centralDigitalRepoCount,
-                        convert_to_percentage(
-                            centralDigitalRepoCount, totalRepositories
-                        ),
-                    ],
-                    "platformsAndArchitectureRepoCount": [
-                        platformsAndArchitectureRepoCount,
-                        convert_to_percentage(
-                            platformsAndArchitectureRepoCount, totalRepositories
-                        ),
-                    ],
-                    "techServicesRepoCount": [
-                        techServicesRepoCount,
-                        convert_to_percentage(techServicesRepoCount, totalRepositories),
-                    ],
-                },
-                "repositories": {
-                    "hmpps": hmppsRepos,
-                    "laa": laaRepos,
-                    "opg": opgRepos,
-                    "cica": cicaRepos,
-                    "centralDigital": centralDigitalRepos,
-                    "platformsAndArchitecture": platformsAndArchitectureRepos,
-                    "techServices": techServicesRepos,
-                    "all": repositories,
-                    "unownedRepos": unownedRepos,
-                    "reposWithMultipleOwners": reposWithMultipleOwners,
-                },
-            }
+        database_service.add_asset_if_name_does_not_exist(
+            "REPOSITORY", repository["name"]
         )
-    )
+
     logger.info("Complete!")
 
 
