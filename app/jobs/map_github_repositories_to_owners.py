@@ -42,124 +42,114 @@ def main():
     )[0]
     tech_services_owner_id, _ = database_service.find_owner_by_name("Tech Services")[0]
 
-    strict_search = False
-    direct_access_level = (
-        "github_teams_with_admin_access"
-        if strict_search
-        else "github_teams_with_any_access"
-    )
-    parent_access_level = (
-        "github_teams_with_admin_access_parents"
-        if strict_search
-        else "github_teams_with_any_access_parents"
-    )
-
     for repository in repositories:
+        github_teams_with_admin_access = repository["github_teams_with_admin_access"]
+        github_teams_with_admin_access_parents = repository[
+            "github_teams_with_admin_access_parents"
+        ]
+        github_teams_with_any_access = repository["github_teams_with_any_access"]
+        github_teams_with_any_access_parents = repository[
+            "github_teams_with_any_access_parents"
+        ]
+        repository_name = repository["name"]
+
+        # HMPPS Digital
         if (
-            "HMPPS Developers" in repository["github_teams_with_admin_access"]
-            or "HMPPS Developers"
-            in repository["github_teams_with_admin_access_parents"]
+            "HMPPS Developers" in github_teams_with_admin_access
+            or "HMPPS Developers" in github_teams_with_admin_access_parents
         ):
             database_service.add_relationship_between_asset_and_owner(
-                repository["name"], hmpps_owner_id, "ADMIN_ACCESS"
+                repository_name, hmpps_owner_id, "ADMIN_ACCESS"
             )
         elif (
-            # HMPPS Digital
-            "HMPPS Developers" in repository[direct_access_level]
-            or "HMPPS Developers" in repository[parent_access_level]
+            "HMPPS Developers" in github_teams_with_any_access
+            or "HMPPS Developers" in github_teams_with_any_access_parents
             # Fuzzy Matches 👇
-            or repository["name"].startswith("hmpps-")
+            or repository_name.startswith("hmpps-")
         ):
             database_service.add_relationship_between_asset_and_owner(
-                repository["name"], hmpps_owner_id
+                repository_name, hmpps_owner_id
             )
 
+        # LAA Digital
         if (
-            "LAA Technical Architects" in repository["github_teams_with_admin_access"]
-            or "LAA Technical Architects"
-            in repository["github_teams_with_admin_access_parents"]
-            or "LAA Developers" in repository["github_teams_with_admin_access"]
-            or "LAA Developers" in repository["github_teams_with_admin_access_parents"]
-            or "LAA Crime Apps team" in repository["github_teams_with_admin_access"]
-            or "LAA Crime Apps team"
-            in repository["github_teams_with_admin_access_parents"]
-            or "LAA Crime Apply" in repository["github_teams_with_admin_access"]
-            or "LAA Crime Apply" in repository["github_teams_with_admin_access_parents"]
-            or "laa-eligibility-platform"
-            in repository["github_teams_with_admin_access"]
-            or "laa-eligibility-platform"
-            in repository["github_teams_with_admin_access_parents"]
-            or "LAA Get Access" in repository["github_teams_with_admin_access"]
-            or "LAA Get Access" in repository["github_teams_with_admin_access_parents"]
-            or "LAA Payments and Billing"
-            in repository["github_teams_with_admin_access"]
-            or "LAA Payments and Billing"
-            in repository["github_teams_with_admin_access_parents"]
+            "LAA Technical Architects" in github_teams_with_admin_access
+            or "LAA Technical Architects" in github_teams_with_admin_access_parents
+            or "LAA Developers" in github_teams_with_admin_access
+            or "LAA Developers" in github_teams_with_admin_access_parents
+            or "LAA Crime Apps team" in github_teams_with_admin_access
+            or "LAA Crime Apps team" in github_teams_with_admin_access_parents
+            or "LAA Crime Apply" in github_teams_with_admin_access
+            or "LAA Crime Apply" in github_teams_with_admin_access_parents
+            or "laa-eligibility-platform" in github_teams_with_admin_access
+            or "laa-eligibility-platform" in github_teams_with_admin_access_parents
+            or "LAA Get Access" in github_teams_with_admin_access
+            or "LAA Get Access" in github_teams_with_admin_access_parents
+            or "LAA Payments and Billing" in github_teams_with_admin_access
+            or "LAA Payments and Billing" in github_teams_with_admin_access_parents
         ):
             database_service.add_relationship_between_asset_and_owner(
-                repository["name"], laa_owner_id, "ADMIN_ACCESS"
+                repository_name, laa_owner_id, "ADMIN_ACCESS"
             )
         elif (
-            # LAA Digital
-            "LAA Technical Architects" in repository[direct_access_level]
-            or "LAA Technical Architects" in repository[parent_access_level]
-            or "LAA Developers" in repository[direct_access_level]
-            or "LAA Developers" in repository[parent_access_level]
-            or "LAA Crime Apps team" in repository[direct_access_level]
-            or "LAA Crime Apps team" in repository[parent_access_level]
-            or "LAA Crime Apply" in repository[direct_access_level]
-            or "LAA Crime Apply" in repository[parent_access_level]
-            or "laa-eligibility-platform" in repository[direct_access_level]
-            or "laa-eligibility-platform" in repository[parent_access_level]
-            or "LAA Get Access" in repository[direct_access_level]
-            or "LAA Get Access" in repository[parent_access_level]
-            or "LAA Payments and Billing" in repository[direct_access_level]
-            or "LAA Payments and Billing" in repository[parent_access_level]
+            "LAA Technical Architects" in github_teams_with_any_access
+            or "LAA Technical Architects" in github_teams_with_any_access_parents
+            or "LAA Developers" in github_teams_with_any_access
+            or "LAA Developers" in github_teams_with_any_access_parents
+            or "LAA Crime Apps team" in github_teams_with_any_access
+            or "LAA Crime Apps team" in github_teams_with_any_access_parents
+            or "LAA Crime Apply" in github_teams_with_any_access
+            or "LAA Crime Apply" in github_teams_with_any_access_parents
+            or "laa-eligibility-platform" in github_teams_with_any_access
+            or "laa-eligibility-platform" in github_teams_with_any_access_parents
+            or "LAA Get Access" in github_teams_with_any_access
+            or "LAA Get Access" in github_teams_with_any_access_parents
+            or "LAA Payments and Billing" in github_teams_with_any_access
+            or "LAA Payments and Billing" in github_teams_with_any_access_parents
             # Fuzzy Matches 👇
-            or repository["name"].startswith("laa-")
+            or repository_name.startswith("laa-")
         ):
             database_service.add_relationship_between_asset_and_owner(
-                repository["name"], laa_owner_id
+                repository_name, laa_owner_id
             )
 
+        # OPG Digital
         if (
             "OPG" in repository["github_teams_with_admin_access"]
             or "OPG" in repository["github_teams_with_admin_access_parents"]
         ):
             database_service.add_relationship_between_asset_and_owner(
-                repository["name"], opg_owner_id, "ADMIN_ACCESS"
+                repository_name, opg_owner_id, "ADMIN_ACCESS"
             )
         elif (
-            # OPG Digital
-            "OPG" in repository[direct_access_level]
-            or "OPG" in repository[parent_access_level]
+            "OPG" in github_teams_with_any_access
+            or "OPG" in github_teams_with_any_access_parents
             # Fuzzy Matches 👇
-            or repository["name"].startswith("opg-")
+            or repository_name.startswith("opg-")
         ):
             database_service.add_relationship_between_asset_and_owner(
-                repository["name"], opg_owner_id
+                repository_name, opg_owner_id
             )
-            opgRepos.append(repository)
-            ownersFound += 1
 
+        # CICA Digital
         if (
-            "CICA" in repository["github_teams_with_admin_access"]
-            or "CICA" in repository["github_teams_with_admin_access_parents"]
+            "CICA" in github_teams_with_admin_access
+            or "CICA" in github_teams_with_admin_access_parents
         ):
             database_service.add_relationship_between_asset_and_owner(
-                repository["name"], cica_owner_id, "ADMIN_ACCESS"
+                repository_name, cica_owner_id, "ADMIN_ACCESS"
             )
         elif (
-            # CICA Digital
-            "CICA" in repository[direct_access_level]
-            or "CICA" in repository[parent_access_level]
+            "CICA" in github_teams_with_any_access
+            or "CICA" in github_teams_with_any_access_parents
             # Fuzzy Matches 👇
-            or repository["name"].startswith("cica-")
+            or repository_name.startswith("cica-")
         ):
             database_service.add_relationship_between_asset_and_owner(
-                repository["name"], cica_owner_id
+                repository_name, cica_owner_id
             )
 
+        # Central Digital
         if (
             "Central Digital Product Team"
             in repository["github_teams_with_admin_access"]
@@ -170,19 +160,19 @@ def main():
             in repository["github_teams_with_admin_access_parents"]
         ):
             database_service.add_relationship_between_asset_and_owner(
-                repository["name"], central_digital_owner_id, "ADMIN_ACCESS"
+                repository_name, central_digital_owner_id, "ADMIN_ACCESS"
             )
         elif (
-            # Central Digital
-            "Central Digital Product Team" in repository[direct_access_level]
-            or "Central Digital Product Team" in repository[parent_access_level]
-            or "tactical-products" in repository[direct_access_level]
-            or "tactical-products" in repository[parent_access_level]
+            "Central Digital Product Team" in github_teams_with_any_access
+            or "Central Digital Product Team" in github_teams_with_any_access_parents
+            or "tactical-products" in github_teams_with_any_access
+            or "tactical-products" in github_teams_with_any_access_parents
         ):
             database_service.add_relationship_between_asset_and_owner(
-                repository["name"], central_digital_owner_id
+                repository_name, central_digital_owner_id
             )
 
+        # Platforms and Architecture https://peoplefinder.service.gov.uk/teams/platforms
         if contains_one_or_more(
             [
                 ### Hosting Platforms
@@ -204,13 +194,12 @@ def main():
                 "Hale platform",
                 "JOTW Content Devs",
             ],
-            repository["github_teams_with_admin_access"],
+            github_teams_with_admin_access,
         ):
             database_service.add_relationship_between_asset_and_owner(
-                repository["name"], platforms_and_architecture_owner_id, "ADMIN_ACCESS"
+                repository_name, platforms_and_architecture_owner_id, "ADMIN_ACCESS"
             )
         elif (
-            # Platforms and Architecture https://peoplefinder.service.gov.uk/teams/platforms
             ## Platforms
             contains_one_or_more(
                 [
@@ -233,41 +222,37 @@ def main():
                     "Hale platform",
                     "JOTW Content Devs",
                 ],
-                repository[direct_access_level],
+                github_teams_with_any_access,
             )
             ## Criminal Justice Services
             # Fuzzy Matches 👇
-            or repository["name"].startswith("bichard7")
+            or repository_name.startswith("bichard7")
         ):
             database_service.add_relationship_between_asset_and_owner(
-                repository["name"], platforms_and_architecture_owner_id
+                repository_name, platforms_and_architecture_owner_id
             )
 
+        # Tech Services
         if (
-            "nvvs-devops-admins" in repository["github_teams_with_admin_access"]
-            or "nvvs-devops-admins"
-            in repository["github_teams_with_admin_access_parents"]
-            or "moj-official-techops" in repository["github_teams_with_admin_access"]
-            or "moj-official-techops"
-            in repository["github_teams_with_admin_access_parents"]
+            "nvvs-devops-admins" in github_teams_with_admin_access
+            or "nvvs-devops-admins" in github_teams_with_admin_access_parents
+            or "moj-official-techops" in github_teams_with_admin_access
+            or "moj-official-techops" in github_teams_with_admin_access_parents
         ):
             database_service.add_relationship_between_asset_and_owner(
-                repository["name"], tech_services_owner_id, "ADMIN_ACCESS"
+                repository_name, tech_services_owner_id, "ADMIN_ACCESS"
             )
         elif (
-            # Tech Services
-            "nvvs-devops-admins" in repository[direct_access_level]
-            or "nvvs-devops-admins" in repository[parent_access_level]
-            or "moj-official-techops" in repository[direct_access_level]
-            or "moj-official-techops" in repository[parent_access_level]
+            "nvvs-devops-admins" in github_teams_with_any_access
+            or "nvvs-devops-admins" in github_teams_with_any_access_parents
+            or "moj-official-techops" in github_teams_with_any_access
+            or "moj-official-techops" in github_teams_with_any_access_parents
         ):
             database_service.add_relationship_between_asset_and_owner(
-                repository["name"], tech_services_owner_id
+                repository_name, tech_services_owner_id
             )
 
-        database_service.add_asset_if_name_does_not_exist(
-            "REPOSITORY", repository["name"]
-        )
+        database_service.add_asset_if_name_does_not_exist("REPOSITORY", repository_name)
 
     logger.info("Complete!")
 
