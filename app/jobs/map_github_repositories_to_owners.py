@@ -4,28 +4,60 @@ from app.main.config.app_config import app_config
 from app.main.config.logging_config import configure_logging
 from app.main.services.github_service import GithubService
 
-import json
-
 logger = logging.getLogger(__name__)
 
 
-def convert_to_percentage(partial: int, total: int) -> str:
-    return f"{round((partial / total) * 100)}%"
-
-
-def contains_one_or_more(values: list[str], list_to_check: list[str]) -> bool:
+def contains_one_or_more(values: list[str], lists_to_check: list[list[str]]) -> bool:
     found = False
 
     for value in values:
-        if value in list_to_check:
-            found = True
+        for list_to_check in lists_to_check:
+            if value in list_to_check:
+                found = True
 
     return found
 
 
-def main():
+def main(
+    owners=[{"name": "HMPPS", "teams": ["HMPPS Developers"], "prefix": "hmpps-"}],
+    hmpps_teams=["HMPPS Developers"],
+    laa_teams=[
+        "LAA Technical Architects",
+        "LAA Developers",
+        "LAA Crime Apps team",
+        "LAA Crime Apply",
+        "laa-eligibility-platform",
+        "LAA Get Access",
+        "LAA Payments and Billing",
+    ],
+    opg_teams=["OPG"],
+    cica_teams=["CICA"],
+    central_digital_teams=["Central Digital Product Team", "tactical-products"],
+    platforms_and_architecture_teams=[
+        ### Hosting Platforms
+        "modernisation-platform",
+        "operations-engineering",
+        "aws-root-account-admin-team",
+        "WebOps",  # Cloud Platform
+        "Studio Webops",  # Digital Studio Operations (DSO)
+        ### Data Platforms
+        "analytical-platform",
+        "data-engineering",
+        "analytics-hq",
+        "data-catalogue",
+        "data-platform",
+        "data-and-analytics-engineering",
+        "observability-platform",
+        ### Publishing Platforms
+        "Form Builder",
+        "Hale platform",
+        "JOTW Content Devs",
+    ],
+    tech_services_teams=["nvvs-devops-admins", "moj-official-techops"],
+):
     configure_logging(app_config.logging_level)
     logger.info("Running...")
+
     database_service = DatabaseService()
     github_service = GithubService(app_config.github.token)
     repositories = github_service.get_all_repositories()
@@ -52,18 +84,22 @@ def main():
             "github_teams_with_any_access_parents"
         ]
         repository_name = repository["name"]
+        teams_with_admin_access = [
+            github_teams_with_admin_access,
+            github_teams_with_admin_access_parents,
+        ]
+        teams_with_any_access = [
+            github_teams_with_any_access,
+            github_teams_with_any_access_parents,
+        ]
 
         # HMPPS Digital
-        if (
-            "HMPPS Developers" in github_teams_with_admin_access
-            or "HMPPS Developers" in github_teams_with_admin_access_parents
-        ):
+        if contains_one_or_more(hmpps_teams, teams_with_admin_access):
             database_service.add_relationship_between_asset_and_owner(
                 repository_name, hmpps_owner_id, "ADMIN_ACCESS"
             )
         elif (
-            "HMPPS Developers" in github_teams_with_any_access
-            or "HMPPS Developers" in github_teams_with_any_access_parents
+            contains_one_or_more(hmpps_teams, teams_with_any_access)
             # Fuzzy Matches 👇
             or repository_name.startswith("hmpps-")
         ):
@@ -72,40 +108,12 @@ def main():
             )
 
         # LAA Digital
-        if (
-            "LAA Technical Architects" in github_teams_with_admin_access
-            or "LAA Technical Architects" in github_teams_with_admin_access_parents
-            or "LAA Developers" in github_teams_with_admin_access
-            or "LAA Developers" in github_teams_with_admin_access_parents
-            or "LAA Crime Apps team" in github_teams_with_admin_access
-            or "LAA Crime Apps team" in github_teams_with_admin_access_parents
-            or "LAA Crime Apply" in github_teams_with_admin_access
-            or "LAA Crime Apply" in github_teams_with_admin_access_parents
-            or "laa-eligibility-platform" in github_teams_with_admin_access
-            or "laa-eligibility-platform" in github_teams_with_admin_access_parents
-            or "LAA Get Access" in github_teams_with_admin_access
-            or "LAA Get Access" in github_teams_with_admin_access_parents
-            or "LAA Payments and Billing" in github_teams_with_admin_access
-            or "LAA Payments and Billing" in github_teams_with_admin_access_parents
-        ):
+        if contains_one_or_more(laa_teams, teams_with_admin_access):
             database_service.add_relationship_between_asset_and_owner(
                 repository_name, laa_owner_id, "ADMIN_ACCESS"
             )
         elif (
-            "LAA Technical Architects" in github_teams_with_any_access
-            or "LAA Technical Architects" in github_teams_with_any_access_parents
-            or "LAA Developers" in github_teams_with_any_access
-            or "LAA Developers" in github_teams_with_any_access_parents
-            or "LAA Crime Apps team" in github_teams_with_any_access
-            or "LAA Crime Apps team" in github_teams_with_any_access_parents
-            or "LAA Crime Apply" in github_teams_with_any_access
-            or "LAA Crime Apply" in github_teams_with_any_access_parents
-            or "laa-eligibility-platform" in github_teams_with_any_access
-            or "laa-eligibility-platform" in github_teams_with_any_access_parents
-            or "LAA Get Access" in github_teams_with_any_access
-            or "LAA Get Access" in github_teams_with_any_access_parents
-            or "LAA Payments and Billing" in github_teams_with_any_access
-            or "LAA Payments and Billing" in github_teams_with_any_access_parents
+            contains_one_or_more(laa_teams, teams_with_any_access)
             # Fuzzy Matches 👇
             or repository_name.startswith("laa-")
         ):
@@ -114,16 +122,12 @@ def main():
             )
 
         # OPG Digital
-        if (
-            "OPG" in repository["github_teams_with_admin_access"]
-            or "OPG" in repository["github_teams_with_admin_access_parents"]
-        ):
+        if contains_one_or_more(opg_teams, teams_with_admin_access):
             database_service.add_relationship_between_asset_and_owner(
                 repository_name, opg_owner_id, "ADMIN_ACCESS"
             )
         elif (
-            "OPG" in github_teams_with_any_access
-            or "OPG" in github_teams_with_any_access_parents
+            contains_one_or_more(opg_teams, teams_with_any_access)
             # Fuzzy Matches 👇
             or repository_name.startswith("opg-")
         ):
@@ -132,16 +136,12 @@ def main():
             )
 
         # CICA Digital
-        if (
-            "CICA" in github_teams_with_admin_access
-            or "CICA" in github_teams_with_admin_access_parents
-        ):
+        if contains_one_or_more(cica_teams, teams_with_admin_access):
             database_service.add_relationship_between_asset_and_owner(
                 repository_name, cica_owner_id, "ADMIN_ACCESS"
             )
         elif (
-            "CICA" in github_teams_with_any_access
-            or "CICA" in github_teams_with_any_access_parents
+            contains_one_or_more(cica_teams, teams_with_any_access)
             # Fuzzy Matches 👇
             or repository_name.startswith("cica-")
         ):
@@ -150,51 +150,18 @@ def main():
             )
 
         # Central Digital
-        if (
-            "Central Digital Product Team"
-            in repository["github_teams_with_admin_access"]
-            or "Central Digital Product Team"
-            in repository["github_teams_with_admin_access_parents"]
-            or "tactical-products" in repository["github_teams_with_admin_access"]
-            or "tactical-products"
-            in repository["github_teams_with_admin_access_parents"]
-        ):
+        if contains_one_or_more(central_digital_teams, teams_with_admin_access):
             database_service.add_relationship_between_asset_and_owner(
                 repository_name, central_digital_owner_id, "ADMIN_ACCESS"
             )
-        elif (
-            "Central Digital Product Team" in github_teams_with_any_access
-            or "Central Digital Product Team" in github_teams_with_any_access_parents
-            or "tactical-products" in github_teams_with_any_access
-            or "tactical-products" in github_teams_with_any_access_parents
-        ):
+        elif contains_one_or_more(central_digital_teams, teams_with_any_access):
             database_service.add_relationship_between_asset_and_owner(
                 repository_name, central_digital_owner_id
             )
 
         # Platforms and Architecture https://peoplefinder.service.gov.uk/teams/platforms
         if contains_one_or_more(
-            [
-                ### Hosting Platforms
-                "modernisation-platform",
-                "operations-engineering",
-                "aws-root-account-admin-team",
-                "WebOps",  # Cloud Platform
-                "Studio Webops",  # Digital Studio Operations (DSO)
-                ### Data Platforms
-                "analytical-platform",
-                "data-engineering",
-                "analytics-hq",
-                "data-catalogue",
-                "data-platform",
-                "data-and-analytics-engineering",
-                "observability-platform",
-                ### Publishing Platforms
-                "Form Builder",
-                "Hale platform",
-                "JOTW Content Devs",
-            ],
-            github_teams_with_admin_access,
+            platforms_and_architecture_teams, github_teams_with_admin_access
         ):
             database_service.add_relationship_between_asset_and_owner(
                 repository_name, platforms_and_architecture_owner_id, "ADMIN_ACCESS"
@@ -202,26 +169,7 @@ def main():
         elif (
             ## Platforms
             contains_one_or_more(
-                [
-                    ### Hosting Platforms
-                    "modernisation-platform",
-                    "operations-engineering",
-                    "aws-root-account-admin-team",
-                    "WebOps",  # Cloud Platform
-                    "Studio Webops",  # Digital Studio Operations (DSO)
-                    ### Data Platforms
-                    "analytical-platform",
-                    "data-engineering",
-                    "analytics-hq",
-                    "data-catalogue",
-                    "data-platform",
-                    "data-and-analytics-engineering",
-                    "observability-platform",
-                    ### Publishing Platforms
-                    "Form Builder",
-                    "Hale platform",
-                    "JOTW Content Devs",
-                ],
+                platforms_and_architecture_teams,
                 github_teams_with_any_access,
             )
             ## Criminal Justice Services
@@ -233,20 +181,16 @@ def main():
             )
 
         # Tech Services
-        if (
-            "nvvs-devops-admins" in github_teams_with_admin_access
-            or "nvvs-devops-admins" in github_teams_with_admin_access_parents
-            or "moj-official-techops" in github_teams_with_admin_access
-            or "moj-official-techops" in github_teams_with_admin_access_parents
+        if contains_one_or_more(
+            tech_services_teams,
+            github_teams_with_admin_access,
         ):
             database_service.add_relationship_between_asset_and_owner(
                 repository_name, tech_services_owner_id, "ADMIN_ACCESS"
             )
-        elif (
-            "nvvs-devops-admins" in github_teams_with_any_access
-            or "nvvs-devops-admins" in github_teams_with_any_access_parents
-            or "moj-official-techops" in github_teams_with_any_access
-            or "moj-official-techops" in github_teams_with_any_access_parents
+        elif contains_one_or_more(
+            tech_services_teams,
+            github_teams_with_any_access,
         ):
             database_service.add_relationship_between_asset_and_owner(
                 repository_name, tech_services_owner_id
