@@ -14,7 +14,6 @@ logger = logging.getLogger(__name__)
 def requires_auth(function_f):
     @wraps(function_f)
     def decorated(*args, **kwargs):
-        logger.debug("requires_auth()")
         if app_config.auth_enabled and "user" not in session:
             return redirect("/auth/login")
         return function_f(*args, **kwargs)

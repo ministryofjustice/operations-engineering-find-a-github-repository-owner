@@ -18,14 +18,13 @@ class DatabaseService:
             host=app_config.postgres.host,
             port=app_config.postgres.port,
         ) as conn:
-            logger.debug("Executing query...")
             cur = conn.cursor()
             cur.execute(sql, values)
             data = None
             try:
                 data = cur.fetchall()
-            except Exception as e:
-                logger.debug(e)
+            except Exception:
+                pass
             conn.commit()
             return data
 
@@ -126,17 +125,20 @@ class DatabaseService:
             )
             self.add_relationship(type, asset_id, owner_id)
 
-    def add_relationship_between_asset_and_owner(self, asset_name: str, owner_id: int):
+    def add_relationship_between_asset_and_owner(
+        self, asset_name: str, owner_id: int, relationship_type: str = "OTHER"
+    ):
         self.add_asset_if_name_does_not_exist("REPOSITORY", asset_name)
         asset_id, _, _ = self.find_asset_by_name(asset_name)[0]
 
         self.update_relationship(
-            "MAPPED",
+            relationship_type,
             asset_id,
             owner_id,
         )
 
     def add_stubbed_values(self):
+        logger.info("Adding Stubs...")
         self.add_owner("STUBBED_PLATFORMS_AND_ARCHITECTURES")
         panda_owner_id, _ = self.find_owner_by_name(
             "STUBBED_PLATFORMS_AND_ARCHITECTURES"
@@ -176,7 +178,7 @@ class DatabaseService:
         laa_api_asset_id, _, _ = self.find_asset_by_name("laa-api")[0]
 
         self.add_relationship(
-            "STUBBED_OWNER_HAS_ADMIN_ACCESS",
+            "STUBBED_OTHER",
             operations_engineering_asset_id,
             panda_owner_id,
         )
@@ -212,7 +214,8 @@ class DatabaseService:
         response = self.__execute_query("""
             SELECT 
                 a.name AS asset_name,
-                o.name AS owner_name
+                o.name AS owner_name,
+                r.type AS relationship_type
             FROM 
                 asset a
             LEFT JOIN 
@@ -223,18 +226,17 @@ class DatabaseService:
                 a.id, o.id
         """)
 
-        logger.debug(response)
-
         asset_owners_map = {}
-        for asset_name, owner_name in response:
+        for asset_name, owner_name, relationship_type in response:
             if asset_name not in asset_owners_map:
                 asset_owners_map[asset_name] = {"name": asset_name, "owners": []}
 
-            if owner_name:
-                asset_owners_map[asset_name]["owners"].append(owner_name)
+            if owner_name and relationship_type:
+                asset_owners_map[asset_name]["owners"].append(
+                    {"owner_name": owner_name, "relationship_type": relationship_type}
+                )
 
         flattened_assets = list(asset_owners_map.values())
-        logger.debug(flattened_assets)
         return flattened_assets
 
     def find_all_owners(self):
