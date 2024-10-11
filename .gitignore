@@ -10,3 +10,4 @@ env/
 terraform.tfstate
 *.pyc
 __pycache__/
+.coverage
