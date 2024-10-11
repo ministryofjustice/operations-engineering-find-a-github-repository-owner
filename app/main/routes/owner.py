@@ -44,7 +44,9 @@ def index():
     repository_name = request.args.get("repository-name")
     selected_owner = request.args.get("owner")
     selected_access_levels = request.args.getlist("access-levels")
-
+    exclude_other_relationships_where_admins_exist = bool(
+        request.args.get("exclude_other_relationships_where_admins_exist")
+    )
     filtered_repositories = []
     if selected_owner:
         for repository in repositories:
@@ -52,34 +54,40 @@ def index():
                 filtered_repositories = filtered_repositories + [repository]
                 continue
 
-            selected_owners_full = []
+            owners_with_admin_access = [
+                o
+                for o in repository["owners"]
+                if "ADMIN_ACCESS" in o.get("relationship_type")
+            ]
+
             for owner in repository["owners"]:
                 if owner["owner_name"] == selected_owner:
-                    selected_owners_full += [owner]
-                    for owner in selected_owners_full:
-                        has_admin_access = (
-                            True
-                            if "ADMIN_ACCESS" in owner.get("relationship_type")
-                            else False
-                        )
+                    has_atleast_one_admin = bool(len(owners_with_admin_access) > 0)
+                    has_admin_access = bool(
+                        "ADMIN_ACCESS" in owner.get("relationship_type")
+                    )
+                    has_other_access = bool("OTHER" in owner.get("relationship_type"))
 
-                        if (
-                            "ADMIN" in selected_access_levels
-                            and has_admin_access
-                            or "OTHER" in selected_access_levels
-                            and not has_admin_access
-                        ):
-                            repositories_filtered_by_access_level = (
-                                filtered_repositories + [repository]
-                            )
-                            filtered_repositories = filtered_repositories + [repository]
-                            break
+                    include_admin_access = bool(
+                        "ADMIN" in selected_access_levels and has_admin_access
+                    )
+                    include_other_access = bool(
+                        "OTHER" in selected_access_levels
+                        and has_other_access
+                        and not (
+                            exclude_other_relationships_where_admins_exist
+                            and has_atleast_one_admin
+                        )
+                    )
+
+                    if include_admin_access or include_other_access:
+                        filtered_repositories += [repository]
     else:
         filtered_repositories = repositories
 
     filtered_repositories_by_name = []
     if repository_name:
-        for repository in repositories:
+        for repository in filtered_repositories:
             if repository_name and repository_name in repository["name"]:
                 filtered_repositories_by_name = filtered_repositories_by_name + [
                     repository
@@ -104,4 +112,5 @@ def index():
         selected_access_levels=selected_access_levels
         if selected_access_levels
         else ["ADMIN", "OTHER"],
+        exclude_other_relationships_where_admins_exist=exclude_other_relationships_where_admins_exist,
     )

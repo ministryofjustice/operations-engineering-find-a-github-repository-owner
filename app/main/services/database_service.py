@@ -183,7 +183,7 @@ class DatabaseService:
             panda_owner_id,
         )
         self.add_relationship(
-            "STUBBED_OWNER_HAS_ADMIN_ACCESS",
+            "STUBBED_OTHER",
             operations_engineering_testing_asset_id,
             panda_owner_id,
         )

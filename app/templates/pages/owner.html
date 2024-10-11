@@ -65,6 +65,20 @@
               {% endfor %}
             </fieldset>
           </div>
+          <div class="govuk-form-group">
+            <fieldset class="govuk-fieldset">
+              <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
+                Options
+              </legend>
+              <div class="govuk-checkboxes govuk-checkboxes--small" data-module="govuk-checkboxes">
+                <div class="govuk-checkboxes__item">
+                  <input class="govuk-checkboxes__input" id="exclude_other_relationships_where_admins_exist" name="exclude_other_relationships_where_admins_exist" type="checkbox" value="true" {% if exclude_other_relationships_where_admins_exist %} checked {% endif %}>
+                  <label class="govuk-label govuk-checkboxes__label" for="exclude_other_relationships_where_admins_exist">Exclude Other Relationships When Admins Exist</label>
+                </div>
+              </div>
+            </fieldset>
+          </div>
+
         </div>
       </div>
     </div>
