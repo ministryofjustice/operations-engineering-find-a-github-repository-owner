@@ -8,100 +8,16 @@
   <h1 class="govuk-heading-xl">Find a GitHub Repository Owner</h1>
 
   <div class="govuk-grid-row">
-    <div class="govuk-grid-column-one-half">
-      <h3 class="govuk-heading-l">Repositories by Owners</h3>
-      {{ pie_chart | safe }}
-    </div>
-    <div class="govuk-grid-column-one-half">
-      <h3 class="govuk-heading-l">Repositories by Relationship Type</h3>
-      {{ pie_chart_of_admin_access | safe }}
+    <div class="govuk-grid-column-two-third">
+      <ul class="govuk-list">
+        <li><a class="govuk-link" href="/organisation">Organisation View</a></li>
+        <li><a class="govuk-link" href="/owner">Owner View</a></li>
+        {% for owner in owners %}
+        <li><a class="govuk-link" href="/owner/{{owner}}">{{ owner }} Dashboard</a></li>
+        {% endfor %}
+
+      </ul>
     </div>
   </div>
-
-  <h3 class="govuk-heading-m">Filter Results</h3>
-
-  <form method="get">
-    <div class="moj-filter">
-      <div class="moj-filter__header">
-        <div class="moj-filter__header-title">
-          <h2 class="govuk-heading-m">Filter</h2>
-        </div>
-        <div class="moj-filter__header-action">
-        </div>
-      </div>
-
-      <div class="moj-filter__content">
-        <div class="moj-filter__options">
-          <button type="submit" class="govuk-button" data-module="govuk-button" data-test-id="submit-button">
-            Apply filters
-          </button>
-          <div class="govuk-form-group">
-            <label class="govuk-label govuk-label--m" for="repository-name">
-              Repository Name
-            </label>
-            <input class="govuk-input" id="repository-name" name="repository-name" type="text" value="{{ repository_name }}">
-          </div>
-          <div class="govuk-form-group">
-            <fieldset class="govuk-fieldset">
-              <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
-                Owner
-              </legend>
-              {% for owner in owners %}
-                <div class="govuk-checkboxes govuk-checkboxes--small" data-module="govuk-checkboxes">
-                  <div class="govuk-checkboxes__item">
-                    <input class="govuk-checkboxes__input" id="{{ owner }}" name="owner" type="checkbox" value="{{ owner }}" {% if owner in selected_owners %} checked {% endif %}>
-                    <label class="govuk-label govuk-checkboxes__label" for="{{ owner }}">
-                      {{ owner }}
-                    </label>
-                  </div>
-              {% endfor %}
-              <div class="govuk-checkboxes govuk-checkboxes--small" data-module="govuk-checkboxes">
-                <div class="govuk-checkboxes__item">
-                  <input class="govuk-checkboxes__input" id="NO_OWNER" name="owner" type="checkbox" value="NO_OWNER" {% if "NO_OWNER" in selected_owners %} checked {% endif %}>
-                  <label class="govuk-label govuk-checkboxes__label" for="NO_OWNER">
-                    No Owner
-                  </label>
-                </div>
-            </fieldset>
-          </div>
-          <div class="govuk-form-group">
-            <fieldset class="govuk-fieldset">
-              <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
-                Relationship Types
-              </legend>
-              {% for access_level in access_levels %}
-              <div class="govuk-checkboxes govuk-checkboxes--small" data-module="govuk-checkboxes">
-                <div class="govuk-checkboxes__item">
-                  <input class="govuk-checkboxes__input" id="{{ access_level }}" name="access-levels" type="checkbox" value="{{ access_level }}" {% if access_level in selected_access_levels %} checked {% endif %}>
-                  <label class="govuk-label govuk-checkboxes__label" for="{{ access_level }}">
-                    {{ access_level }}
-                  </label>
-                </div>
-              </div>
-              {% endfor %}
-            </fieldset>
-          </div>
-        </div>
-      </div>
-    </div>
-  </form>
-
-  <table class="govuk-table" data-module="moj-sortable-table">
-    <thead class="govuk-table__head">
-      <tr class="govuk-table__row">
-        <th scope="col" class="govuk-table__header" aria-sort="ascending">Name</th>
-        <th scope="col" class="govuk-table__header" aria-sort="none">Owners</th>
-      </tr>
-    </thead>
-
-    <tbody class="govuk-table__body">
-      {% for repository in repositories %}
-        <tr class="govuk-table__row">
-          <td class="govuk-table__cell"><a href="https://github.com/ministryofjustice/{{ repository["name"] }}" rel="noreferrer noopener" target="_blank" class="govuk-link">{{ repository["name"] }}</a></td>
-          <td class="govuk-table__cell">{% for owner in repository["owners"] %} {{ owner["owner_name"] }} has {{ owner["relationship_type"] }}{% if loop.nextitem %}, {% endif %} {% endfor %}</td>
-        </tr>
-      {% endfor %}
-    </tbody>
-  </table>
 
 {% endblock %}
