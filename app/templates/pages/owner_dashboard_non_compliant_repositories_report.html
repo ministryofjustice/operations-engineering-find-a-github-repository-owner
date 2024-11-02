@@ -10,9 +10,10 @@
   <h1 class="govuk-heading-xl">{{ owner }} - Non Compliance Report</h1>
 
   <section class="govuk-!-margin-bottom-6 govuk-inset-text">
-    <h2 class="govuk-heading-m">Repositories Without Admin Access</h2>
+    <h2 class="govuk-heading-m">Non Compliant Repositories</h2>
     <p class="govuk-body">
-    You lack admin access to {{ repositories | length }} repositories. For effective oversight, ensure you have appropriate permissions.
+      There are <strong>{{ repositories | length }}</strong> repositories that do not meet compliance standards.
+      Regularly reviewing these can help maintain security and consistency across your repository estate.
     </p>
   </section>
 
