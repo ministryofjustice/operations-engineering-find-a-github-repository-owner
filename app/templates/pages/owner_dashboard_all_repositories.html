@@ -10,34 +10,40 @@
   <h1 class="govuk-heading-xl">{{ owner }} - Full Report</h1>
 
   <section>
-    <table class="govuk-table">
+    <table class="govuk-table" data-module="moj-sortable-table">
       <thead class="govuk-table__head">
         <tr class="govuk-table__row">
-          <th scope="col" class="govuk-table__header">Repository</th>
-          <th scope="col" class="govuk-table__header">Compliance Status</th>
-          <th scope="col" class="govuk-table__header">Access Level</th>
-                    
+          <th scope="col" class="govuk-table__header" aria-sort="ascending">
+            Repository
+          </th>
+          <th scope="col" class="govuk-table__header" aria-sort="ascending">
+           Compliance Status
+          </th>
+          <th scope="col" class="govuk-table__header" aria-sort="ascending">
+            Access Level
+          </th>
         </tr>
       </thead>
       <tbody class="govuk-table__body">
-      {% for repository in  repositories %}
-      <tr class="govuk-table__row">
-        <td class="govuk-table__cell"><a href="https://github.com/ministryofjustice/{{ repository["name"] }}" rel="noreferrer noopener" target="_blank" class="govuk-link">{{ repository["name"] }}</a></td>
-        <td class="govuk-table__cell">{{ repository["compliance_status"] }}</a></td>
-        <td class="govuk-table__cell">
-          {% for repository_owner in repository["owners"] %}
-            {% if repository_owner["owner_name"] == owner %}
-              {% if "ADMIN" in repository_owner["relationship_type"] %}
-                Admin Access 
-              {% else %}
-                Other Access
-              {% endif %}
+        {% for repository in repositories %}
+        <tr class="govuk-table__row">
+          <td class="govuk-table__cell">
+            <a href="https://github.com/ministryofjustice/{{ repository['name'] }}" rel="noreferrer noopener" target="_blank" class="govuk-link">{{ repository['name'] }}</a>
+          </td>
+          <td class="govuk-table__cell">{{ repository['compliance_status'] }}</td>
+          <td class="govuk-table__cell">
+            {% for repository_owner in repository['owners'] %}
+            {% if repository_owner['owner_name'] == owner %}
+            {% if 'ADMIN' in repository_owner['relationship_type'] %}
+            Admin Access
+            {% else %}
+            Other Access
             {% endif %}
-          {% endfor %}
-        </td>
-
-      </tr>
-      {% endfor %}
+            {% endif %}
+            {% endfor %}
+          </td>
+        </tr>
+        {% endfor %}
       </tbody>
     </table>
   </section>
