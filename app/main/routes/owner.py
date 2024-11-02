@@ -255,9 +255,8 @@ def owner_dashboard_all_repositories(owner: str):
     if owner not in owners:
         abort(404)
 
-    all_repositories = decorate_repositories_with_compliance_status(
-        database_service.find_all_repositories()
-    )
+    all_repositories = database_service.find_all_repositories()
+
     repositories = filter_by_owner(owner, all_repositories)
     repositories_without_admin_access = filter_by_missing_relationship(
         "ADMIN_ACCESS", repositories
