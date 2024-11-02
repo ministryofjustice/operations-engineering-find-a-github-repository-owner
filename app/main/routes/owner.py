@@ -49,13 +49,15 @@ def filter_by_owner(
     return filtered_repositories_by_owner
 
 
-def filter_by_missing_relationship(
-    relationship_to_filter_by: str, repositories: list[dict]
+def filter_by_owner_missing_relationship(
+    owner_to_filter_by: str, relationship_to_filter_by: str, repositories: list[dict]
 ):
     filtered_repositories = []
     for repository in repositories:
         for owner in repository["owners"]:
-            if relationship_to_filter_by not in owner.get("relationship_type"):
+            if owner_to_filter_by == owner[
+                "owner_name"
+            ] and relationship_to_filter_by not in owner.get("relationship_type"):
                 filtered_repositories += [repository]
     return filtered_repositories
 
@@ -231,8 +233,8 @@ def owner_dashboard(owner: str):
 
     all_repositories = database_service.find_all_repositories()
     repositories = filter_by_owner(owner, all_repositories)
-    repositories_without_admin_access = filter_by_missing_relationship(
-        "ADMIN_ACCESS", repositories
+    repositories_without_admin_access = filter_by_owner_missing_relationship(
+        owner, "ADMIN_ACCESS", repositories
     )
     non_compliant_repositories = filter_by_compliance_status(
         "FAIL", decorate_repositories_with_compliance_status(repositories)
@@ -258,8 +260,8 @@ def owner_dashboard_all_repositories(owner: str):
     all_repositories = database_service.find_all_repositories()
 
     repositories = filter_by_owner(owner, all_repositories)
-    repositories_without_admin_access = filter_by_missing_relationship(
-        "ADMIN_ACCESS", repositories
+    repositories_without_admin_access = filter_by_owner_missing_relationship(
+        owner, "ADMIN_ACCESS", repositories
     )
     non_compliant_repositories = filter_by_compliance_status(
         "FAIL", decorate_repositories_with_compliance_status(repositories)
@@ -282,8 +284,10 @@ def owner_dashboard_repositories_without_admin_access(owner: str):
     if owner not in owners:
         abort(404)
 
-    repositories = filter_by_missing_relationship(
-        "ADMIN_ACCESS", filter_by_owner(owner, database_service.find_all_repositories())
+    repositories = filter_by_owner_missing_relationship(
+        owner,
+        "ADMIN_ACCESS",
+        filter_by_owner(owner, database_service.find_all_repositories()),
     )
     return render_template(
         "pages/owner_dashboard_repositories_without_admin_access.html",
