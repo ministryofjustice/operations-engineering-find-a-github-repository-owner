@@ -9,7 +9,6 @@
 
 <h1 class="govuk-heading-xl">{{ owner }} - GitHub Repository Dashboard</h1>
 
-<!-- Summary statistics section -->
 <section class="govuk-summary-list govuk-!-margin-bottom-6">
     <h2 class="govuk-heading-l">Summary Statistics</h2>
 
@@ -60,7 +59,6 @@
 </p>
 
 {% if repositories_without_admin_access | length > 0 %}
-<!-- Warning for Repositories without Admin Access -->
 <section class="govuk-warning-text govuk-!-margin-bottom-6">
     <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
     <strong class="govuk-warning-text__text">
@@ -75,7 +73,6 @@
 {% endif %}
 
 {% if non_compliant_repositories | length > 0 %}
-<!-- Warning for Non-Compliant Repositories -->
 <section class="govuk-warning-text govuk-!-margin-bottom-6">
     <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
     <strong class="govuk-warning-text__text">
@@ -89,7 +86,6 @@
 </section>
 {% endif %}
 
-<!-- Assignment Criteria Information -->
 <details class="govuk-details" data-module="govuk-details">
     <summary class="govuk-details__summary">
         <span class="govuk-details__summary-text">

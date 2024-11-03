@@ -45,6 +45,10 @@ app_config = SimpleNamespace(
         db=__get_env_var("POSTGRES_DB"),
         host=__get_env_var("POSTGRES_HOST"),
         port=__get_env_var("POSTGRES_PORT"),
+        sql_alchemy_database_url=(
+            f"postgresql://{__get_env_var('POSTGRES_USER')}:{__get_env_var('POSTGRES_PASSWORD')}@"
+            f"{__get_env_var('POSTGRES_HOST')}:{__get_env_var('POSTGRES_PORT')}/{__get_env_var('POSTGRES_DB')}"
+        ),
     ),
     github=SimpleNamespace(token=__get_env_var("ADMIN_GITHUB_TOKEN")),
 )

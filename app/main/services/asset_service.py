@@ -1,0 +1,79 @@
+import logging
+from flask import g
+from app.main.models import Asset
+from app.main.repositories.asset_repository import AssetRepository, get_asset_repository
+
+
+class AssetService:
+    def __init__(self, asset_repository: AssetRepository):
+        self.__asset_repository = asset_repository
+
+    def get_repositories_by_authoratative_owner(
+        self,
+        owner_to_filter_by: str,
+        exclude_other_relationships_where_admins_exist=True,
+    ) -> list[Asset]:
+        repositories = self.__asset_repository.find_all_by_owner(owner_to_filter_by)
+        return [
+            repo
+            for repo in repositories
+            if self.__is_owner_authoritative_for_repository(
+                repo, owner_to_filter_by, exclude_other_relationships_where_admins_exist
+            )
+        ]
+
+    def get_repositories_by_authoratative_owner_filtered_by_missing_relationship(
+        self, owner_to_filter_by: str, relationship_to_filter_by: str
+    ) -> list[Asset]:
+        repositories = self.get_repositories_by_authoratative_owner(owner_to_filter_by)
+        return [
+            repository
+            for repository in repositories
+            if any(
+                owner.name == owner_to_filter_by
+                and all(
+                    relationship.type != relationship_to_filter_by
+                    for relationship in owner.relationships
+                )
+                for owner in repository.owners
+            )
+        ]
+
+    def __is_owner_authoritative_for_repository(
+        self, repository: Asset, owner_to_filter_by: str, exclude_other: bool
+    ) -> bool:
+        owners_with_access = [
+            owner for owner in repository.owners if owner.name == owner_to_filter_by
+        ]
+        if not owners_with_access:
+            return False
+
+        if len(owners_with_access) > 1:
+            logging.error(
+                f"Data Issue - Multiple owners with the same name - need to look into repository name [ ${repository.name} with ] id [ ${repository.id} ]"
+            )
+        owner_relationships = owners_with_access[0].relationships
+
+        has_admin_access = any(
+            "ADMIN_ACCESS" in relationship.type for relationship in owner_relationships
+        )
+        has_other_access = any(
+            "OTHER" in relationship.type for relationship in owner_relationships
+        )
+        owners_with_admin_access = any(
+            any(
+                "ADMIN_ACCESS" in relationship.type
+                for relationship in owner.relationships
+            )
+            for owner in repository.owners
+        )
+
+        return has_admin_access or (
+            has_other_access and not (exclude_other and owners_with_admin_access)
+        )
+
+
+def get_asset_service() -> AssetService:
+    if "asset_service" not in g:
+        g.asset_service = AssetService(get_asset_repository())
+    return g.asset_service
