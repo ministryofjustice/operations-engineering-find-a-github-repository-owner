@@ -29,7 +29,7 @@
       {% for repository in  repositories %}
       <tr class="govuk-table__row">
         <td class="govuk-table__cell"><a href="https://github.com/ministryofjustice/{{ repository["name"] }}" rel="noreferrer noopener" target="_blank" class="govuk-link">{{ repository["name"] }}</a></td>
-        <td class="govuk-table__cell">{{ repository["compliance_status"] }}</a></td>
+        <td class="govuk-table__cell">{{ repositories_compliance_map[repository.name] }}</td>
       </tr>
       {% endfor %}
       </tbody>

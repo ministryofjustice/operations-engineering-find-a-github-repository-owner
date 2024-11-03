@@ -16,8 +16,11 @@ logger = logging.getLogger(__name__)
 owner_route = Blueprint("owner_route", __name__)
 
 
-def filter_by_compliance_status(compliance_status: str, repositories: list[Asset]):
-    repositories_compliance_map = get_repositories_compliance_map(repositories)
+def filter_by_compliance_status(
+    compliance_status: str,
+    repositories: list[Asset],
+    repositories_compliance_map: dict[str, str],
+):
     filtered_repositories_by_compliance_status = []
     for repository in repositories:
         if repositories_compliance_map[repository.name] == compliance_status:
@@ -160,7 +163,10 @@ def owner_dashboard(owner: str):
     repositories_without_admin_access = asset_service.get_repositories_by_authoratative_owner_filtered_by_missing_relationship(
         owner, "ADMIN_ACCESS"
     )
-    non_compliant_repositories = filter_by_compliance_status("FAIL", repositories)
+    repositories_compliance_map = get_repositories_compliance_map(repositories)
+    non_compliant_repositories = filter_by_compliance_status(
+        "FAIL", repositories, repositories_compliance_map
+    )
 
     return render_template(
         "pages/owner_dashboard.html",
@@ -221,12 +227,15 @@ def owner_dashboard_non_compliant_repositories_report(owner: str):
     if owner not in owners:
         abort(404)
 
+    owner_repositories = asset_service.get_repositories_by_authoratative_owner(owner)
+    repositories_compliance_map = get_repositories_compliance_map(owner_repositories)
     repositories = filter_by_compliance_status(
-        "FAIL", asset_service.get_repositories_by_authoratative_owner(owner)
+        "FAIL", owner_repositories, repositories_compliance_map
     )
 
     return render_template(
         "pages/owner_dashboard_non_compliant_repositories_report.html",
         owner=owner,
         repositories=repositories,
+        repositories_compliance_map=repositories_compliance_map,
     )
