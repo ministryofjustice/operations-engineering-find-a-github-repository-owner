@@ -1,8 +1,21 @@
-from sqlalchemy import join
-from sqlalchemy.orm import scoped_session, joinedload
+from app.main.models import Asset, db
 from flask import g
-from app.main.models import Asset, Owner, Relationship, db
-from app.main.routes import owner
+from sqlalchemy.orm import scoped_session
+
+
+class AssetView:
+    def __init__(self, name: str, owners: list[str]):
+        self.name = name
+        self.owners = owners
+
+    @classmethod
+    def from_asset(cls, asset: Asset):
+        filtered_owners = [
+            relationship.owner.name
+            for relationship in asset.relationships
+            if "ADMIN_ACCESS" in relationship.type
+        ]
+        return cls(name=asset.name, owners=filtered_owners)
 
 
 class AssetRepository:
@@ -21,6 +34,16 @@ class AssetRepository:
         )
 
         return list(assets)
+
+    def find_by_repository_name_and_relationship_type(
+        self, name: str, relationship_type: str
+    ) -> AssetView | None:
+        asset = self.db_session.query(Asset).filter(Asset.name == name).first()
+
+        if asset:
+            return AssetView.from_asset(asset)
+        else:
+            return None
 
 
 def get_asset_repository() -> AssetRepository:
