@@ -15,7 +15,10 @@ class Owner(db.Model):
         "Relationship", back_populates="owner"
     )
     assets: Mapped[List["Asset"]] = relationship(
-        "Asset", secondary="relationship", back_populates="owners"
+        "Asset",
+        secondary="relationship",
+        back_populates="owners",
+        overlaps="relationships",
     )
 
     def __repr__(self) -> str:
@@ -34,7 +37,10 @@ class Asset(db.Model):
         "Relationship", back_populates="asset"
     )
     owners: Mapped[List["Owner"]] = relationship(
-        "Owner", secondary="relationship", back_populates="assets"
+        "Owner",
+        secondary="relationship",
+        back_populates="assets",
+        overlaps="relationships",
     )
 
     def __repr__(self) -> str:
