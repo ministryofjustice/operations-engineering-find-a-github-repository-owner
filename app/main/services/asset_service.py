@@ -1,5 +1,6 @@
 import logging
 from flask import g
+from sqlalchemy.orm import relationship, relationships
 from app.main.models import Asset
 from app.main.repositories.asset_repository import AssetRepository, get_asset_repository
 
@@ -14,30 +15,29 @@ class AssetService:
         exclude_other_relationships_where_admins_exist=True,
     ) -> list[Asset]:
         repositories = self.__asset_repository.find_all_by_owner(owner_to_filter_by)
-        return [
+        response = [
             repo
             for repo in repositories
             if self.__is_owner_authoritative_for_repository(
                 repo, owner_to_filter_by, exclude_other_relationships_where_admins_exist
             )
         ]
+        return response
 
     def get_repositories_by_authoratative_owner_filtered_by_missing_relationship(
         self, owner_to_filter_by: str, relationship_to_filter_by: str
     ) -> list[Asset]:
         repositories = self.get_repositories_by_authoratative_owner(owner_to_filter_by)
-        return [
-            repository
-            for repository in repositories
-            if any(
-                owner.name == owner_to_filter_by
-                and all(
-                    relationship.type != relationship_to_filter_by
-                    for relationship in owner.relationships
-                )
-                for owner in repository.owners
-            )
-        ]
+
+        filtered_repositories = []
+        for repository in repositories:
+            if (
+                relationship_to_filter_by not in repository.relationships[0].type
+                and repository.owners[0].name == owner_to_filter_by
+            ):
+                filtered_repositories.append(repository)
+
+        return filtered_repositories
 
     def __is_owner_authoritative_for_repository(
         self, repository: Asset, owner_to_filter_by: str, exclude_other: bool
@@ -52,7 +52,7 @@ class AssetService:
             logging.error(
                 f"Data Issue - Multiple owners with the same name - need to look into repository name [ ${repository.name} with ] id [ ${repository.id} ]"
             )
-        owner_relationships = owners_with_access[0].relationships
+        owner_relationships = repository.relationships
 
         has_admin_access = any(
             "ADMIN_ACCESS" in relationship.type for relationship in owner_relationships

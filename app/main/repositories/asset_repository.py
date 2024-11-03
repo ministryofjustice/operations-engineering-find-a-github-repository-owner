@@ -2,6 +2,7 @@ from sqlalchemy import join
 from sqlalchemy.orm import scoped_session, joinedload
 from flask import g
 from app.main.models import Asset, Owner, Relationship, db
+from app.main.routes import owner
 
 
 class AssetRepository:
@@ -12,14 +13,14 @@ class AssetRepository:
         return self.db_session.query(Asset).all()
 
     def find_all_by_owner(self, owner_name: str) -> list[Asset]:
-        return (
+        assets = (
             self.db_session.query(Asset)
-            .join(Relationship)
-            .join(Owner)
-            .filter(Owner.name == owner_name)
-            .distinct()
+            .join(Asset.owners)
+            .filter(Asset.owners.any(name=owner_name))
             .all()
         )
+
+        return list(assets)
 
 
 def get_asset_repository() -> AssetRepository:
