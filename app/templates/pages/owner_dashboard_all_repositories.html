@@ -5,7 +5,7 @@
 {% endblock %}
 
 {% block content %}
-<a href="/owner/{{owner}}" class="govuk-back-link">Back</a>
+  <a href="/owner/{{owner}}" class="govuk-back-link">Back</a>
 
   <h1 class="govuk-heading-xl">{{ owner }} - Full Report</h1>
 
@@ -28,13 +28,13 @@
         {% for repository in repositories %}
         <tr class="govuk-table__row">
           <td class="govuk-table__cell">
-            <a href="https://github.com/ministryofjustice/{{ repository['name'] }}" rel="noreferrer noopener" target="_blank" class="govuk-link">{{ repository['name'] }}</a>
+            <a href="https://github.com/ministryofjustice/{{ repository.name }}" rel="noreferrer noopener" target="_blank" class="govuk-link">{{ repository.name }}</a>
           </td>
-          <td class="govuk-table__cell">{{ repository['compliance_status'] }}</td>
+          <td class="govuk-table__cell">{{ repositories_compliance_map[repository.name] }}</td>
           <td class="govuk-table__cell">
-            {% for repository_owner in repository['owners'] %}
-            {% if repository_owner['owner_name'] == owner %}
-            {% if 'ADMIN' in repository_owner['relationship_type'] %}
+            {% for relationship in repository.relationships %}
+            {% if relationship.owner.name == owner %}
+            {% if 'ADMIN' in relationship.type %}
             Admin Access
             {% else %}
             Other Access

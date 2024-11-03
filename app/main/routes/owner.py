@@ -1,4 +1,6 @@
 import logging
+
+from pandas.core.dtypes.dtypes import re
 from app.main.middleware.auth import requires_auth
 from app.main.repositories import asset_repository
 from app.main.services.database_service import DatabaseService
@@ -65,6 +67,24 @@ def decorate_repositories_with_compliance_status(repositories: list[dict]):
         repository["compliance_status"] = compliance_status
 
     return repositories
+
+
+def get_repositories_with_compliance_map(repositories: list[Asset]):
+    repositories_compliance_map = {}
+    for repository in repositories:
+        repository_name = repository.name
+        repositories_compliance_map[repository_name] = {}
+        try:
+            repository_standards_response = requests.get(
+                f"https://operations-engineering-reports.cloud-platform.service.justice.gov.uk/api/v1/compliant_public_repositories/endpoint/{repository_name}"
+            ).json()
+            compliance_status = repository_standards_response["message"]
+            repositories_compliance_map[repository_name] = compliance_status
+        except Exception:
+            compliance_status = "Unknown"
+            repositories_compliance_map[repository_name] = compliance_status
+
+    return repositories_compliance_map
 
 
 def filter_by_compliance_status(compliance_status: str, repositories: list[dict]):
@@ -189,7 +209,6 @@ def owner_dashboard(owner: str):
         abort(404)
 
     all_repositories = database_service.find_all_repositories()
-    # all_repositories = asset_repository.find_all()
     repositories = filter_by_owner(owner, all_repositories)
     repositories_without_admin_access = asset_service.get_repositories_by_authoratative_owner_filtered_by_missing_relationship(
         owner, "ADMIN_ACCESS"
@@ -217,21 +236,13 @@ def owner_dashboard_all_repositories(owner: str):
     if owner not in owners:
         abort(404)
 
-    all_repositories = database_service.find_all_repositories()
-
-    repositories = filter_by_owner(owner, all_repositories)
-    repositories_without_admin_access = asset_service.get_repositories_by_authoratative_owner_filtered_by_missing_relationship(
-        owner, "ADMIN_ACCESS"
-    )
-    non_compliant_repositories = filter_by_compliance_status(
-        "FAIL", decorate_repositories_with_compliance_status(repositories)
-    )
+    repositories = asset_service.get_repositories_by_authoratative_owner(owner)
+    repositories_compliance_map = get_repositories_with_compliance_map(repositories)
     return render_template(
         "pages/owner_dashboard_all_repositories.html",
         owner=owner,
         repositories=repositories,
-        repositories_without_admin_access=repositories_without_admin_access,
-        non_compliant_repositories=non_compliant_repositories,
+        repositories_compliance_map=repositories_compliance_map,
     )
 
 
