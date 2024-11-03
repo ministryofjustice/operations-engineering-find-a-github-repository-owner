@@ -1,75 +1,32 @@
 import logging
-
-from pandas.core.dtypes.dtypes import re
-from app.main.middleware.auth import requires_auth
-from app.main.repositories import asset_repository
-from app.main.services.database_service import DatabaseService
-import plotly.express as px
-import pandas as pd
-import requests
-from flask import Blueprint, render_template, request, abort
-from app.main.services.asset_service import AssetRepository, get_asset_service
 from collections import Counter
+
+import pandas as pd
+import plotly.express as px
+import requests
+from flask import Blueprint, abort, render_template, request
+
+from app.main.middleware.auth import requires_auth
 from app.main.models import Asset
+from app.main.services.asset_service import get_asset_service
+from app.main.services.database_service import DatabaseService
 
 logger = logging.getLogger(__name__)
 
 owner_route = Blueprint("owner_route", __name__)
 
 
-def filter_by_owner(
-    owner_to_filter_by: str,
-    repositories: list[dict],
-    exclude_other_relationships_where_admins_exist=True,
-):
-    filtered_repositories_by_owner = []
+def filter_by_compliance_status(compliance_status: str, repositories: list[Asset]):
+    repositories_compliance_map = get_repositories_compliance_map(repositories)
+    filtered_repositories_by_compliance_status = []
     for repository in repositories:
-        owners_with_admin_access = [
-            o
-            for o in repository["owners"]
-            if "ADMIN_ACCESS" in o.get("relationship_type")
-        ]
-        for repository_owner in repository["owners"]:
-            if repository_owner["owner_name"] == owner_to_filter_by:
-                has_atleast_one_admin = bool(len(owners_with_admin_access) > 0)
-                has_admin_access = bool(
-                    "ADMIN_ACCESS" in repository_owner.get("relationship_type")
-                )
-                has_other_access = bool(
-                    "OTHER" in repository_owner.get("relationship_type")
-                )
+        if repositories_compliance_map[repository.name] == compliance_status:
+            filtered_repositories_by_compliance_status += [repository]
 
-                include_admin_access = bool(has_admin_access)
-                include_other_access = bool(
-                    has_other_access
-                    and not (
-                        exclude_other_relationships_where_admins_exist
-                        and has_atleast_one_admin
-                    )
-                )
-
-                if include_admin_access or include_other_access:
-                    filtered_repositories_by_owner += [repository]
-
-    return filtered_repositories_by_owner
+    return filtered_repositories_by_compliance_status
 
 
-def decorate_repositories_with_compliance_status(repositories: list[dict]):
-    for repository in repositories:
-        repository_name = repository["name"]
-        try:
-            repository_standards_response = requests.get(
-                f"https://operations-engineering-reports.cloud-platform.service.justice.gov.uk/api/v1/compliant_public_repositories/endpoint/{repository_name}"
-            ).json()
-            compliance_status = repository_standards_response["message"]
-        except Exception:
-            compliance_status = "Unknown"
-        repository["compliance_status"] = compliance_status
-
-    return repositories
-
-
-def get_repositories_with_compliance_map(repositories: list[Asset]):
+def get_repositories_compliance_map(repositories: list[Asset]):
     repositories_compliance_map = {}
     for repository in repositories:
         repository_name = repository.name
@@ -85,15 +42,6 @@ def get_repositories_with_compliance_map(repositories: list[Asset]):
             repositories_compliance_map[repository_name] = compliance_status
 
     return repositories_compliance_map
-
-
-def filter_by_compliance_status(compliance_status: str, repositories: list[dict]):
-    filtered_repositories_by_compliance_status = []
-    for repository in repositories:
-        if repository["compliance_status"] == compliance_status:
-            filtered_repositories_by_compliance_status += [repository]
-
-    return filtered_repositories_by_compliance_status
 
 
 def generate_pie_chart_of_admin_access(repositories: list[dict], selected_owner: str):
@@ -208,21 +156,18 @@ def owner_dashboard(owner: str):
     if owner not in owners:
         abort(404)
 
-    all_repositories = database_service.find_all_repositories()
-    repositories = filter_by_owner(owner, all_repositories)
+    repositories = asset_service.get_repositories_by_authoratative_owner(owner)
     repositories_without_admin_access = asset_service.get_repositories_by_authoratative_owner_filtered_by_missing_relationship(
         owner, "ADMIN_ACCESS"
     )
-    non_compliant_repositories = filter_by_compliance_status(
-        "FAIL", decorate_repositories_with_compliance_status(repositories)
-    )
+    non_compliant_repositories = filter_by_compliance_status("FAIL", repositories)
+
     return render_template(
         "pages/owner_dashboard.html",
         owner=owner,
         repositories=repositories,
         repositories_without_admin_access=repositories_without_admin_access,
         non_compliant_repositories=non_compliant_repositories,
-        test=asset_service.get_repositories_by_authoratative_owner(owner),
     )
 
 
@@ -237,7 +182,7 @@ def owner_dashboard_all_repositories(owner: str):
         abort(404)
 
     repositories = asset_service.get_repositories_by_authoratative_owner(owner)
-    repositories_compliance_map = get_repositories_with_compliance_map(repositories)
+    repositories_compliance_map = get_repositories_compliance_map(repositories)
     return render_template(
         "pages/owner_dashboard_all_repositories.html",
         owner=owner,
@@ -269,6 +214,7 @@ def owner_dashboard_repositories_without_admin_access(owner: str):
 @owner_route.route("/<owner>/non-compliant-repositories", methods=["GET"])
 @requires_auth
 def owner_dashboard_non_compliant_repositories_report(owner: str):
+    asset_service = get_asset_service()
     database_service = DatabaseService()
     owners = database_service.find_all_owners()
 
@@ -276,11 +222,9 @@ def owner_dashboard_non_compliant_repositories_report(owner: str):
         abort(404)
 
     repositories = filter_by_compliance_status(
-        "FAIL",
-        decorate_repositories_with_compliance_status(
-            filter_by_owner(owner, database_service.find_all_repositories())
-        ),
+        "FAIL", asset_service.get_repositories_by_authoratative_owner(owner)
     )
+
     return render_template(
         "pages/owner_dashboard_non_compliant_repositories_report.html",
         owner=owner,
