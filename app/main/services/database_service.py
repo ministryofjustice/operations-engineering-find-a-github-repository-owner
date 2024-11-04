@@ -163,6 +163,11 @@ class DatabaseService:
             "operations-engineering-testing"
         )[0]
 
+        self.add_asset("STUBBED_REPOSITORY", "operations-engineering-user-guide")
+        operations_engineering_user_guide_asset_id, _, _ = self.find_asset_by_name(
+            "operations-engineering-user-guide"
+        )[0]
+
         self.add_asset("STUBBED_REPOSITORY", "hmpps-auth")
         hmpps_auth_asset_id, _, _ = self.find_asset_by_name("hmpps-auth")[0]
 
@@ -185,6 +190,11 @@ class DatabaseService:
         self.add_relationship(
             "STUBBED_OTHER",
             operations_engineering_testing_asset_id,
+            panda_owner_id,
+        )
+        self.add_relationship(
+            "STUBBED_OWNER_HAS_ADMIN_ACCESS",
+            operations_engineering_user_guide_asset_id,
             panda_owner_id,
         )
         self.add_relationship(

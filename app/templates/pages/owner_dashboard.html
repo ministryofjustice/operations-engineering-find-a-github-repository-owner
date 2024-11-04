@@ -5,36 +5,106 @@
 {% endblock %}
 
 {% block content %}
-  <a href="/" class="govuk-back-link">Back</a>
+<a href="/" class="govuk-back-link">Back</a>
 
-  <h1 class="govuk-heading-xl">{{ owner }} Dashboard</h1>
-  <p class="govuk-heading-m">Total Repositories: {{ filtered_repositories_by_owner | length }}</p>
-  <p class="govuk-heading-m">Admin Access: {{ repositories_with_admin_access | length }}</p>
+<h1 class="govuk-heading-xl">{{ owner }} - GitHub Repository Dashboard</h1>
 
+<section class="govuk-summary-list govuk-!-margin-bottom-6">
+    <h2 class="govuk-heading-l">Summary Statistics</h2>
 
-  <table class="govuk-table" data-module="moj-sortable-table">
-    <thead class="govuk-table__head">
-      <tr class="govuk-table__row">
-        <th scope="col" class="govuk-table__header" aria-sort="ascending">Name</th>
-        <th scope="col" class="govuk-table__header" aria-sort="none">Relationship</th>
-      </tr>
-    </thead>
+    <div class="govuk-summary-list__row">
+        <dt class="govuk-summary-list__key">Total Repositories</dt>
+        <dd class="govuk-summary-list__value">{{ repositories | length }}</dd>
+    </div>
 
-    <tbody class="govuk-table__body">
-      {% for repository in filtered_repositories_by_owner %}
-      <tr class="govuk-table__row">
-        <td class="govuk-table__cell"><a href="https://github.com/ministryofjustice/{{ repository["name"] }}" rel="noreferrer noopener" target="_blank" class="govuk-link">{{ repository["name"] }}</a></td>
-        <td class="govuk-table__cell">
-          {% for repository_owner in repository["owners"] %} 
-            {% if repository_owner["owner_name"] == owner %} 
-              {{ repository_owner["relationship_type"] }}
-            {% endif %} 
-          {% endfor %}
-        </td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+    {% set admin_percentage = ((repositories | length - repositories_without_admin_access | length) / (repositories | length)) * 100 %}
+    <div class="govuk-summary-list__row">
+        <dt class="govuk-summary-list__key">Repositories with Admin Access</dt>
+        <dd class="govuk-summary-list__value">
+            <span class="
+                {% if admin_percentage < 60 %} govuk-tag govuk-tag--red
+                {% elif admin_percentage < 80 %} govuk-tag govuk-tag--yellow
+                {% elif admin_percentage < 100 %} govuk-tag govuk-tag--green
+                {% else %} govuk-tag govuk-tag--green-dark
+                {% endif %}
+            ">
+                {{ repositories | length - repositories_without_admin_access | length }}
+                ({{ admin_percentage | round(1) }}%)
+            </span>
+        </dd>
+    </div>
 
+    {% set compliance_percentage = ((repositories | length - non_compliant_repositories | length) / (repositories | length)) * 100 %}
+    <div class="govuk-summary-list__row">
+        <dt class="govuk-summary-list__key">Compliant Repositories</dt>
+        <dd class="govuk-summary-list__value">
+            <span class="
+                {% if compliance_percentage < 60 %} govuk-tag govuk-tag--red
+                {% elif compliance_percentage < 80 %} govuk-tag govuk-tag--yellow
+                {% elif compliance_percentage < 100 %} govuk-tag govuk-tag--green
+                {% else %} govuk-tag govuk-tag--green-dark
+                {% endif %}
+            ">
+                {{ repositories | length - non_compliant_repositories | length }}
+                ({{ compliance_percentage | round(1) }}%)
+            </span>
+        </dd>
+    </div>
+</section>
+
+<p class="govuk-body govuk-!-margin-bottom-6">
+    <a href="/owner/{{ owner }}/all-repositories" class="govuk-link govuk-link--no-visited-state">
+        View full report of all repositories
+    </a>
+</p>
+
+{% if repositories_without_admin_access | length > 0 %}
+<section class="govuk-warning-text govuk-!-margin-bottom-6">
+    <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
+    <strong class="govuk-warning-text__text">
+        <span class="govuk-warning-text__assistive">Warning</span>
+        You lack admin access to <strong>{{ repositories_without_admin_access | length }}</strong> repositories.
+        Full admin access is recommended for oversight and control of your repository estate.
+    </strong>
+    <p>
+        <a href="/owner/{{ owner }}/repositories-without-admin-access" class="govuk-button govuk-button--secondary">View Repositories without Admin Access</a>
+    </p>
+</section>
+{% endif %}
+
+{% if non_compliant_repositories | length > 0 %}
+<section class="govuk-warning-text govuk-!-margin-bottom-6">
+    <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
+    <strong class="govuk-warning-text__text">
+        <span class="govuk-warning-text__assistive">Warning</span>
+        There are <strong>{{ non_compliant_repositories | length }}</strong> repositories that do not meet compliance standards.
+        Regularly reviewing these can help maintain security and consistency across your repository estate.
+    </strong>
+    <p>
+        <a href="/owner/{{ owner }}/non-compliant-repositories" class="govuk-button govuk-button--secondary">View Non-Compliant Repositories</a>
+    </p>
+</section>
+{% endif %}
+
+<details class="govuk-details" data-module="govuk-details">
+    <summary class="govuk-details__summary">
+        <span class="govuk-details__summary-text">
+            How are repositories assigned?
+        </span>
+    </summary>
+    <div class="govuk-details__text">
+        <p class="govuk-body">
+            Repositories are assigned to you based on the following criteria:
+        </p>
+        <ul class="govuk-list govuk-list--bullet">
+            <li>Admin access granted to specific GitHub Teams associated with you.</li>
+            <li>Other types of access by those GitHub Teams also establish a relationship.</li>
+            <li>Repository names that match certain prefixes predefined for your role or organization.</li>
+        </ul>
+        <p class="govuk-body">
+            If any of these criteria need updating, contact your GitHub administrator.
+        </p>
+    </div>
+</details>
 
 {% endblock %}

@@ -61,9 +61,22 @@
 
 
 {% block bodyEnd %}
-    <!-- Manually set the govuk frontend version in the line below -->
-    <script src="{{ url_for('static', filename='javascript/govuk-frontend-5.1.0.min.js') }}"></script>
-    <script>window.GOVUKFrontend.initAll()</script>
+    <!-- GovUK Frontend -->
+    <script type="module" src="{{ url_for('static', filename='javascript/govuk-frontend-5.1.0.min.js') }}"></script>
+    <script type="module">
+      import { initAll } from '{{ url_for('static', filename='javascript/govuk-frontend-5.1.0.min.js') }}'
+        initAll()
+    </script>
+    <!-- MoJ Frontend -->
+    <script
+      src="https://code.jquery.com/jquery-3.6.0.min.js"
+      integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
+      crossorigin="anonymous"
+    ></script>
+    <script src="{{ url_for('static', filename='javascript/moj-frontend.min.js') }}"></script>
+    <script>
+      window.MOJFrontend.initAll();
+    </script>
 {% endblock bodyEnd %}
 
 {% block content %}
