@@ -31,15 +31,13 @@
           </td>
           <td class="govuk-table__cell">{{ repositories_compliance_map[repository.name] }}</td>
           <td class="govuk-table__cell">
-            {% for relationship in repository.relationships %}
-            {% if relationship.owner.name == owner %}
-            {% if 'ADMIN' in relationship.type %}
+            {% if owner in repository.admin_owner_names %}
             Admin Access
-            {% else %}
+            {% elif owner in repository.owner_names %}
             Other Access
+            {% else %}
+            Unknown
             {% endif %}
-            {% endif %}
-            {% endfor %}
           </td>
         </tr>
         {% endfor %}

@@ -153,8 +153,8 @@ def owner_dashboard(owner: str):
         abort(404)
 
     repositories = asset_service.get_repositories_by_authoratative_owner(owner)
-    repositories_without_admin_access = asset_service.get_repositories_by_authoratative_owner_filtered_by_missing_relationship(
-        owner, "ADMIN_ACCESS"
+    repositories_without_admin_access = asset_service.get_repositories_by_authoratative_owner_filtered_by_missing_admin_access(
+        owner
     )
     repositories_compliance_map = get_repositories_compliance_map(repositories)
     non_compliant_repositories = filter_by_compliance_status(
@@ -200,8 +200,8 @@ def owner_dashboard_repositories_without_admin_access(owner: str):
     if owner not in owners:
         abort(404)
 
-    repositories = asset_service.get_repositories_by_authoratative_owner_filtered_by_missing_relationship(
-        owner, "ADMIN_ACCESS"
+    repositories = asset_service.get_repositories_by_authoratative_owner_filtered_by_missing_admin_access(
+        owner
     )
     return render_template(
         "pages/owner_dashboard_repositories_without_admin_access.html",

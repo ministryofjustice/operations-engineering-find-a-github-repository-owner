@@ -1,31 +1,35 @@
 from app.main.models import Asset, db
 from flask import g
 from sqlalchemy.orm import scoped_session
+from typing import List
 
 
 class AssetView:
-    def __init__(self, name: str, owners: list[str]):
+    def __init__(self, name: str, owner_names: List[str], admin_owner_names: List[str]):
         self.name = name
-        self.owners = owners
+        self.admin_owner_names = admin_owner_names
+        self.owner_names = owner_names
 
     @classmethod
     def from_asset(cls, asset: Asset):
-        filtered_owners = [
+        owner_names = [relationship.owner.name for relationship in asset.relationships]
+        admin_owner_names = [
             relationship.owner.name
             for relationship in asset.relationships
             if "ADMIN_ACCESS" in relationship.type
         ]
-        return cls(name=asset.name, owners=filtered_owners)
+        return cls(
+            name=asset.name,
+            owner_names=owner_names,
+            admin_owner_names=admin_owner_names,
+        )
 
 
 class AssetRepository:
     def __init__(self, db_session: scoped_session = db.session):
         self.db_session = db_session
 
-    def find_all(self) -> list[Asset]:
-        return self.db_session.query(Asset).all()
-
-    def find_all_by_owner(self, owner_name: str) -> list[Asset]:
+    def find_all_by_owner(self, owner_name: str) -> list[AssetView]:
         assets = (
             self.db_session.query(Asset)
             .join(Asset.owners)
@@ -33,11 +37,9 @@ class AssetRepository:
             .all()
         )
 
-        return list(assets)
+        return [AssetView.from_asset(asset) for asset in assets]
 
-    def find_by_repository_name_and_relationship_type(
-        self, name: str, relationship_type: str
-    ) -> AssetView | None:
+    def find_by_repository_name(self, name: str) -> AssetView | None:
         asset = self.db_session.query(Asset).filter(Asset.name == name).first()
 
         if asset:

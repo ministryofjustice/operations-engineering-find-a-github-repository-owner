@@ -44,7 +44,6 @@ class DatabaseService:
                     CREATE TABLE IF NOT EXISTS relationship (
                         id SERIAL PRIMARY KEY,
                         type varchar,
-                        data jsonb not null default '{}'::jsonb,
                         asset_id integer references asset(id),
                         owner_id integer references owner(id)
                     )
