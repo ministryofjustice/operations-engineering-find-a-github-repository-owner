@@ -28,6 +28,7 @@ def main(
         {
             "name": "LAA",
             "teams": [
+                "LAA Admins",
                 "LAA Technical Architects",
                 "LAA Developers",
                 "LAA Crime Apps team",
