@@ -23,7 +23,10 @@ def filter_by_compliance_status(
 ):
     filtered_repositories_by_compliance_status = []
     for repository in repositories:
-        if repositories_compliance_map[repository.name] == compliance_status:
+        if (
+            repository.name in repositories_compliance_map
+            and repositories_compliance_map[repository.name] == compliance_status
+        ):
             filtered_repositories_by_compliance_status += [repository]
 
     return filtered_repositories_by_compliance_status
