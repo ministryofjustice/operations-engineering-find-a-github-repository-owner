@@ -30,21 +30,11 @@ def filter_by_compliance_status(
 
 
 def get_repositories_compliance_map(repositories: list[Asset]):
-    repositories_compliance_map = {}
-    for repository in repositories:
-        repository_name = repository.name
-        repositories_compliance_map[repository_name] = {}
-        try:
-            repository_standards_response = requests.get(
-                f"https://operations-engineering-reports.cloud-platform.service.justice.gov.uk/api/v1/compliant_public_repositories/endpoint/{repository_name}"
-            ).json()
-            compliance_status = repository_standards_response["message"]
-            repositories_compliance_map[repository_name] = compliance_status
-        except Exception:
-            compliance_status = "Unknown"
-            repositories_compliance_map[repository_name] = compliance_status
-
-    return repositories_compliance_map
+    repository_names = [repository.name for repository in repositories]
+    return requests.post(
+        "https://operations-engineering-reports.cloud-platform.service.justice.gov.uk/api/public-compliance-report",
+        json={"repository_names": repository_names},
+    ).json()
 
 
 def generate_pie_chart_of_admin_access(repositories: list[dict], selected_owner: str):

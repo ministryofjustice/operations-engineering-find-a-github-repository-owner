@@ -32,6 +32,7 @@ class Asset(db.Model):
 
     id: Mapped[int] = mapped_column(db.Integer, primary_key=True)
     name: Mapped[str] = mapped_column(db.String)
+    type: Mapped[str] = mapped_column(db.String)
 
     relationships: Mapped[List["Relationship"]] = relationship(
         "Relationship", back_populates="asset"
