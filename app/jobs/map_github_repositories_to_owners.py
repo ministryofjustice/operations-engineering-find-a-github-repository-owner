@@ -6,6 +6,7 @@ from app.main.config.app_config import app_config
 from app.main.config.logging_config import configure_logging
 from app.main.services.github_service import GithubService
 from app.main.services.asset_service import AssetService
+from app.app import create_app
 
 logger = logging.getLogger(__name__)
 
@@ -99,8 +100,6 @@ def main(
         teams = owner["teams"]
         prefix = owner.get("prefix")
 
-        owner = owner_repository.find_by_name(name)[0]
-
         for repository in repositories:
             github_teams_with_admin_access = repository[
                 "github_teams_with_admin_access"
@@ -125,17 +124,21 @@ def main(
                 repository_name.startswith(prefix) if prefix is not None else False
             )
 
-            asset = asset_service.add_if_name_does_not_exist(repository_name)
+            app = create_app()
 
-            if contains_one_or_more(teams, teams_with_admin_access):
-                asset_service.update_relationships_with_owner(
-                    asset, owner, "ADMIN_ACCESS"
-                )
-            elif (
-                contains_one_or_more(teams, teams_with_any_access)
-                or repository_name_starts_with_prefix
-            ):
-                asset_service.update_relationships_with_owner(asset, owner, "OTHER")
+            with app.app_context():
+                owner = owner_repository.find_by_name(name)[0]
+                asset = asset_service.add_if_name_does_not_exist(repository_name)
+
+                if contains_one_or_more(teams, teams_with_admin_access):
+                    asset_service.update_relationships_with_owner(
+                        asset, owner, "ADMIN_ACCESS"
+                    )
+                elif (
+                    contains_one_or_more(teams, teams_with_any_access)
+                    or repository_name_starts_with_prefix
+                ):
+                    asset_service.update_relationships_with_owner(asset, owner, "OTHER")
 
     logger.info("Complete!")
 
