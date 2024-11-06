@@ -1,10 +1,9 @@
 import logging
+
+from flask import Blueprint, render_template
+
 from app.main.middleware.auth import requires_auth
-from app.main.services.database_service import DatabaseService
-import plotly.express as px
-import pandas as pd
-from flask import Blueprint, render_template, request
-from collections import Counter
+from app.main.repositories.owner_repository import get_owner_repository
 
 logger = logging.getLogger(__name__)
 
@@ -14,7 +13,7 @@ main = Blueprint("main", __name__)
 @main.route("/", methods=["GET"])
 @requires_auth
 def index():
-    database_service = DatabaseService()
-    owners = database_service.find_all_owners()
+    owner_repository = get_owner_repository()
+    owners = owner_repository.find_all_names()
 
     return render_template("pages/home.html", owners=owners)

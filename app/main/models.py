@@ -1,5 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.dialects.postgresql import JSONB
 from typing import List
 
 db = SQLAlchemy()
@@ -22,9 +23,7 @@ class Owner(db.Model):
     )
 
     def __repr__(self) -> str:
-        return (
-            f"<Owner id={self.id}, name={self.name} relationships={self.relationships}>"
-        )
+        return f"<Owner id={self.id}, name={self.name}, relationships={self.relationships}>"
 
 
 class Asset(db.Model):
@@ -45,7 +44,7 @@ class Asset(db.Model):
     )
 
     def __repr__(self) -> str:
-        return f"<Asset id={self.id}, name={self.name}, owners={[self.owners]} relationships={self.relationships}>"
+        return f"<Asset id={self.id}, name={self.name}, owners={[self.owners]}, relationships={self.relationships}>"
 
 
 class Relationship(db.Model):

@@ -74,8 +74,8 @@
               </legend>
               <div class="govuk-checkboxes govuk-checkboxes--small" data-module="govuk-checkboxes">
                 <div class="govuk-checkboxes__item">
-                  <input class="govuk-checkboxes__input" id="exclude_other_relationships_where_admins_exist" name="exclude_other_relationships_where_admins_exist" type="checkbox" value="true" {% if exclude_other_relationships_where_admins_exist %} checked {% endif %}>
-                  <label class="govuk-label govuk-checkboxes__label" for="exclude_other_relationships_where_admins_exist">Exclude Other Relationships When Admins Exist</label>
+                  <input class="govuk-checkboxes__input" id="authorative_owners_only" name="authorative_owners_only" type="checkbox" value="true" {% if exclude_other_relationships_where_admins_exist %} checked {% endif %}>
+                  <label class="govuk-label govuk-checkboxes__label" for="authorative_owners_only">Authoritative Owners Only</label>
                 </div>
               </div>
             </fieldset>
@@ -97,8 +97,13 @@
     <tbody class="govuk-table__body">
       {% for repository in repositories %}
         <tr class="govuk-table__row">
-          <td class="govuk-table__cell"><a href="https://github.com/ministryofjustice/{{ repository["name"] }}" rel="noreferrer noopener" target="_blank" class="govuk-link">{{ repository["name"] }}</a></td>
-          <td class="govuk-table__cell">{% for owner in repository["owners"] %} {{ owner["owner_name"] }} has {{ owner["relationship_type"] }}{% if loop.nextitem %}, {% endif %} {% endfor %}</td>
+          <td class="govuk-table__cell"><a href="https://github.com/ministryofjustice/{{ repository.name }}" rel="noreferrer noopener" target="_blank" class="govuk-link">{{ repository.name }}</a></td>
+          <td class="govuk-table__cell">
+            {% for owner in repository.owner_names %}
+            {{ owner }} has {% if owner in repository.admin_owner_names %} Admin Access {% else %} Other Access {% endif %}
+            {% if loop.nextitem %}, {% endif %} 
+            {% endfor %}
+          </td>
         </tr>
       {% endfor %}
     </tbody>
