@@ -24,6 +24,11 @@ class OwnerRepository:
 
         return [OwnerView.from_owner(owner) for owner in owners]
 
+    def find_by_name(self, name: str) -> List[Owner]:
+        owners = self.db_session.query(Owner).filter(Owner.name == name).all()
+
+        return owners
+
     def find_all_names(self) -> List[str]:
         owners = self.find_all()
 

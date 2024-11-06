@@ -1,3 +1,4 @@
+import logging
 from app.main.models import Asset, Owner
 from app.main.repositories.asset_repository import (
     AssetRepository,
@@ -68,6 +69,28 @@ class AssetService:
 
     def clean_all_tables(self):
         self.__asset_repository.clean_all_tables()
+
+    def update_relationships_with_owner(
+        self, asset: Asset, owner: Owner, relationship_type: str
+    ):
+        self.__asset_repository.update_relationship_with_owner(
+            asset, owner, relationship_type
+        )
+
+    def add_if_name_does_not_exist(self, name: str) -> Asset:
+        assets = self.__asset_repository.find_by_name(name)
+
+        if len(assets) > 1:
+            raise ValueError(
+                f"Multiple Repositories Named [ {name} ] - Remove The Duplicates"
+            )
+
+        if len(assets) == 1:
+            logging.info(f"Found repository [ {name} ]")
+            return assets[0]
+
+        logging.info(f"No repository found [ {name} ] - creating a new asset")
+        return self.__asset_repository.add_asset(name, "REPOSITORY")
 
 
 def get_asset_service() -> AssetService:
