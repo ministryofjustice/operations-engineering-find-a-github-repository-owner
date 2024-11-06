@@ -1,16 +1,12 @@
 import logging
-from typing import List
-from collections import Counter
 
-import pandas as pd
-import plotly.express as px
 import requests
 from flask import Blueprint, abort, render_template, request
 
 from app.main.middleware.auth import requires_auth
+from app.main.repositories.asset_repository import AssetView
 from app.main.repositories.owner_repository import get_owner_repository
 from app.main.services.asset_service import get_asset_service
-from app.main.repositories.asset_repository import AssetView
 
 logger = logging.getLogger(__name__)
 
