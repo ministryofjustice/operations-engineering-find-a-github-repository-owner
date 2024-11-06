@@ -1,4 +1,3 @@
-import datetime
 import logging
 from typing import Any
 
@@ -27,44 +26,6 @@ class DatabaseService:
                 pass
             conn.commit()
             return data
-
-    def create_owner_table(self) -> None:
-        self.__execute_query(
-            sql="""
-                    CREATE TABLE IF NOT EXISTS owner (
-                        id SERIAL PRIMARY KEY,
-                        name varchar
-                    )
-                """
-        )
-
-    def create_relationship_table(self) -> None:
-        self.__execute_query(
-            sql="""
-                    CREATE TABLE IF NOT EXISTS relationship (
-                        id SERIAL PRIMARY KEY,
-                        type varchar,
-                        asset_id integer references asset(id),
-                        owner_id integer references owner(id)
-                    )
-                """
-        )
-
-    def create_asset_table(self) -> None:
-        self.__execute_query(
-            sql="""
-                    CREATE TABLE IF NOT EXISTS asset (
-                        id SERIAL PRIMARY KEY,
-                        type varchar,
-                        name varchar
-                    )
-                """
-        )
-
-    def clean_all_stubbed_values(self) -> None:
-        self.__execute_query(sql="DELETE FROM relationship WHERE type LIKE 'STUBBED%'")
-        self.__execute_query(sql="DELETE FROM owner WHERE name LIKE 'STUBBED%'")
-        self.__execute_query(sql="DELETE FROM asset WHERE type LIKE 'STUBBED%'")
 
     def add_owner(self, name: str) -> None:
         self.__execute_query(
@@ -216,49 +177,3 @@ class DatabaseService:
             opg_api_asset_id,
             opg_owner_id,
         )
-
-        self.find_all_repositories()
-
-    def find_all_repositories(self):
-        response = self.__execute_query("""
-            SELECT 
-                a.name AS asset_name,
-                o.name AS owner_name,
-                r.type AS relationship_type
-            FROM 
-                asset a
-            LEFT JOIN 
-                relationship r ON a.id = r.asset_id
-            LEFT JOIN 
-                owner o ON r.owner_id = o.id
-            ORDER BY 
-                a.id, o.id
-        """)
-
-        asset_owners_map = {}
-        for asset_name, owner_name, relationship_type in response:
-            if asset_name not in asset_owners_map:
-                asset_owners_map[asset_name] = {"name": asset_name, "owners": []}
-
-            if owner_name and relationship_type:
-                asset_owners_map[asset_name]["owners"].append(
-                    {"owner_name": owner_name, "relationship_type": relationship_type}
-                )
-
-        flattened_assets = list(asset_owners_map.values())
-        return flattened_assets
-
-    def find_all_owners(self):
-        owners = (
-            self.__execute_query("""
-            SELECT name
-            FROM owner
-        """)
-            or []
-        )
-
-        response = []
-        for name in owners:
-            response += name
-
-        return response

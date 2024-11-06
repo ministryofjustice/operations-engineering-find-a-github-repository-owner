@@ -1,6 +1,4 @@
-import logging
-
-from app.main.models import Asset
+from app.main.models import Asset, Owner
 from app.main.repositories.asset_repository import (
     AssetRepository,
     get_asset_repository,
@@ -14,6 +12,10 @@ class AssetService:
     def __init__(self, asset_repository: AssetRepository):
         self.__asset_repository = asset_repository
 
+    def get_all_repositories(self) -> List[AssetView]:
+        repositories = self.__asset_repository.find_all()
+        return repositories
+
     def get_repositories_by_authoratative_owner(
         self,
         owner_to_filter_by: str,
@@ -22,7 +24,7 @@ class AssetService:
         response = [
             repo
             for repo in repositories
-            if self.__is_owner_authoritative_for_repository(repo, owner_to_filter_by)
+            if self.is_owner_authoritative_for_repository(repo, owner_to_filter_by)
         ]
         return response
 
@@ -39,7 +41,7 @@ class AssetService:
 
         return repositories_missing_admin_access
 
-    def __is_owner_authoritative_for_repository(
+    def is_owner_authoritative_for_repository(
         self, repository: AssetView, owner_to_filter_by: str
     ) -> bool:
         owner_has_admin_access = bool(
@@ -53,6 +55,19 @@ class AssetService:
         )
 
         return has_authorative_ownership
+
+    def add_asset(self, name: str, type: str):
+        asset = self.__asset_repository.add_asset(name=name, type=type)
+        return asset
+
+    def create_relationship(self, asset: Asset, owner: Owner, relationship_type: str):
+        relationship = self.__asset_repository.create_relationship(
+            asset, owner, relationship_type
+        )
+        return relationship
+
+    def clean_all_tables(self):
+        self.__asset_repository.clean_all_tables()
 
 
 def get_asset_service() -> AssetService:
