@@ -92,7 +92,7 @@ def main(
     logger.info("Running...")
 
     github_service = GithubService(app_config.github.token)
-    repositories = github_service.get_all_repositories(10)
+    repositories = github_service.get_all_repositories()
 
     for owner in owners:
         name = owner["name"]
