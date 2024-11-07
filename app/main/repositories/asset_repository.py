@@ -109,7 +109,7 @@ class AssetRepository:
         relationship = relationships[0]
 
         if relationship.type == relationship_type:
-            logging.debug(
+            logging.info(
                 f"No relationship change between Asset [ {asset.name} ] and Owner [ {owner.name} ] - skipping"
             )
             return relationship
