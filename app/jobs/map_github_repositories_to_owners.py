@@ -93,7 +93,7 @@ def main(
     asset_service = AssetService(AssetRepository())
     owner_repository = OwnerRepository()
     github_service = GithubService(app_config.github.token)
-    repositories = github_service.get_all_repositories(limit=10)
+    repositories = github_service.get_all_repositories(10)
 
     for owner in owners:
         name = owner["name"]
