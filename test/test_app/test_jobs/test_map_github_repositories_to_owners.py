@@ -1,15 +1,30 @@
 import unittest
 from unittest.mock import MagicMock, call, patch
 from app.jobs.map_github_repositories_to_owners import main
+from flask import Flask
+from app.main.models import db
 
 test_owner_id = 1
 
 
 @patch("app.main.services.github_service.GithubService.__new__")
-@patch("app.main.services.database_service.DatabaseService.__new__")
+@patch("app.main.services.asset_service.AssetService.__new__")
+@patch("app.main.repositories.owner_repository.OwnerRepository.__new__")
 class TestMain(unittest.TestCase):
+    def setUp(self):
+        self.app = Flask(__name__)
+        self.app.config["TESTING"] = True
+        self.app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:"
+        self.app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+        db.init_app(self.app)
+        with self.app.app_context():
+            db.create_all()
+
     def test_when_team_has_direct_admin_access_then_admin_relationship_created(
-        self, mock_database_service: MagicMock, mock_github_service: MagicMock
+        self,
+        mock_owner_repository: MagicMock,
+        mock_asset_service: MagicMock,
+        mock_github_service: MagicMock,
     ):
         mock_github_service.return_value.get_all_repositories.return_value = [
             {
@@ -20,18 +35,33 @@ class TestMain(unittest.TestCase):
                 "github_teams_with_any_access_parents": [],
             },
         ]
-        mock_database_service.return_value.find_owner_by_name.return_value = [
-            (test_owner_id, None)
-        ]
+        mock_asset = MagicMock()
+        mock_owner = MagicMock()
+        mock_owner_repository.return_value.find_by_name.return_value = [mock_owner]
+        mock_asset_service.return_value.add_if_name_does_not_exist.return_value = (
+            mock_asset
+        )
 
-        main(owners=[{"name": "Test Owners", "teams": ["Admin Team"]}])
+        with self.app.app_context():
+            main(
+                owners=[{"name": "Test Owners", "teams": ["Admin Team"]}],
+            )
 
-        mock_database_service.return_value.add_relationship_between_asset_and_owner.assert_has_calls(
-            [call("Test Repository", test_owner_id, "ADMIN_ACCESS")]
+        mock_owner_repository.return_value.find_by_name.assert_has_calls(
+            [call("Test Owners")]
+        )
+        mock_asset_service.return_value.add_if_name_does_not_exist.assert_has_calls(
+            [call("Test Repository")]
+        )
+        mock_asset_service.return_value.update_relationships_with_owner.assert_has_calls(
+            [call(mock_asset, mock_owner, "ADMIN_ACCESS")]
         )
 
     def test_when_parent_team_has_admin_access_then_admin_relationship_created(
-        self, mock_database_service: MagicMock, mock_github_service: MagicMock
+        self,
+        mock_owner_repository: MagicMock,
+        mock_asset_service: MagicMock,
+        mock_github_service: MagicMock,
     ):
         mock_github_service.return_value.get_all_repositories.return_value = [
             {
@@ -42,18 +72,33 @@ class TestMain(unittest.TestCase):
                 "github_teams_with_any_access_parents": [],
             },
         ]
-        mock_database_service.return_value.find_owner_by_name.return_value = [
-            (test_owner_id, None)
-        ]
+        mock_asset = MagicMock()
+        mock_owner = MagicMock()
+        mock_owner_repository.return_value.find_by_name.return_value = [mock_owner]
+        mock_asset_service.return_value.add_if_name_does_not_exist.return_value = (
+            mock_asset
+        )
 
-        main(owners=[{"name": "Test Owners", "teams": ["Admin Team"]}])
+        with self.app.app_context():
+            main(
+                owners=[{"name": "Test Owners", "teams": ["Admin Team"]}],
+            )
 
-        mock_database_service.return_value.add_relationship_between_asset_and_owner.assert_has_calls(
-            [call("Test Repository", test_owner_id, "ADMIN_ACCESS")]
+        mock_owner_repository.return_value.find_by_name.assert_has_calls(
+            [call("Test Owners")]
+        )
+        mock_asset_service.return_value.add_if_name_does_not_exist.assert_has_calls(
+            [call("Test Repository")]
+        )
+        mock_asset_service.return_value.update_relationships_with_owner.assert_has_calls(
+            [call(mock_asset, mock_owner, "ADMIN_ACCESS")]
         )
 
     def test_when_team_has_any_access_then_default_relationship_created(
-        self, mock_database_service: MagicMock, mock_github_service: MagicMock
+        self,
+        mock_owner_repository: MagicMock,
+        mock_asset_service: MagicMock,
+        mock_github_service: MagicMock,
     ):
         mock_github_service.return_value.get_all_repositories.return_value = [
             {
@@ -64,18 +109,33 @@ class TestMain(unittest.TestCase):
                 "github_teams_with_any_access_parents": [],
             },
         ]
-        mock_database_service.return_value.find_owner_by_name.return_value = [
-            (test_owner_id, None)
-        ]
+        mock_asset = MagicMock()
+        mock_owner = MagicMock()
+        mock_owner_repository.return_value.find_by_name.return_value = [mock_owner]
+        mock_asset_service.return_value.add_if_name_does_not_exist.return_value = (
+            mock_asset
+        )
 
-        main(owners=[{"name": "Test Owners", "teams": ["Test Team"]}])
+        with self.app.app_context():
+            main(
+                owners=[{"name": "Test Owners", "teams": ["Test Team"]}],
+            )
 
-        mock_database_service.return_value.add_relationship_between_asset_and_owner.assert_has_calls(
-            [call("Test Repository", test_owner_id)]
+        mock_owner_repository.return_value.find_by_name.assert_has_calls(
+            [call("Test Owners")]
+        )
+        mock_asset_service.return_value.add_if_name_does_not_exist.assert_has_calls(
+            [call("Test Repository")]
+        )
+        mock_asset_service.return_value.update_relationships_with_owner.assert_has_calls(
+            [call(mock_asset, mock_owner, "OTHER")]
         )
 
     def test_when_parent_team_has_any_access_then_default_relationship_created(
-        self, mock_database_service: MagicMock, mock_github_service: MagicMock
+        self,
+        mock_owner_repository: MagicMock,
+        mock_asset_service: MagicMock,
+        mock_github_service: MagicMock,
     ):
         mock_github_service.return_value.get_all_repositories.return_value = [
             {
@@ -86,18 +146,34 @@ class TestMain(unittest.TestCase):
                 "github_teams_with_any_access_parents": ["Test Team"],
             },
         ]
-        mock_database_service.return_value.find_owner_by_name.return_value = [
-            (test_owner_id, None)
-        ]
 
-        main(owners=[{"name": "Test Owners", "teams": ["Test Team"]}])
+        mock_asset = MagicMock()
+        mock_owner = MagicMock()
+        mock_owner_repository.return_value.find_by_name.return_value = [mock_owner]
+        mock_asset_service.return_value.add_if_name_does_not_exist.return_value = (
+            mock_asset
+        )
 
-        mock_database_service.return_value.add_relationship_between_asset_and_owner.assert_has_calls(
-            [call("Test Repository", test_owner_id)]
+        with self.app.app_context():
+            main(
+                owners=[{"name": "Test Owners", "teams": ["Test Team"]}],
+            )
+
+        mock_owner_repository.return_value.find_by_name.assert_has_calls(
+            [call("Test Owners")]
+        )
+        mock_asset_service.return_value.add_if_name_does_not_exist.assert_has_calls(
+            [call("Test Repository")]
+        )
+        mock_asset_service.return_value.update_relationships_with_owner.assert_has_calls(
+            [call(mock_asset, mock_owner, "OTHER")]
         )
 
     def test_when_prefix_matches_repository_name_then_default_relationship_created(
-        self, mock_database_service: MagicMock, mock_github_service: MagicMock
+        self,
+        mock_owner_repository: MagicMock,
+        mock_asset_service: MagicMock,
+        mock_github_service: MagicMock,
     ):
         mock_github_service.return_value.get_all_repositories.return_value = [
             {
@@ -108,22 +184,32 @@ class TestMain(unittest.TestCase):
                 "github_teams_with_any_access_parents": [],
             },
         ]
-        mock_database_service.return_value.find_owner_by_name.return_value = [
-            (test_owner_id, None)
-        ]
-
-        main(
-            owners=[
-                {
-                    "name": "Test Owners",
-                    "teams": ["Test Team"],
-                    "prefix": "test-prefix-",
-                }
-            ]
+        mock_asset = MagicMock()
+        mock_owner = MagicMock()
+        mock_owner_repository.return_value.find_by_name.return_value = [mock_owner]
+        mock_asset_service.return_value.add_if_name_does_not_exist.return_value = (
+            mock_asset
         )
 
-        mock_database_service.return_value.add_relationship_between_asset_and_owner.assert_has_calls(
-            [call("test-prefix-Test Repository", test_owner_id)]
+        with self.app.app_context():
+            main(
+                owners=[
+                    {
+                        "name": "Test Owners",
+                        "teams": ["Test Team"],
+                        "prefix": "test-prefix-",
+                    }
+                ],
+            )
+
+        mock_owner_repository.return_value.find_by_name.assert_has_calls(
+            [call("Test Owners")]
+        )
+        mock_asset_service.return_value.add_if_name_does_not_exist.assert_has_calls(
+            [call("test-prefix-Test Repository")]
+        )
+        mock_asset_service.return_value.update_relationships_with_owner.assert_has_calls(
+            [call(mock_asset, mock_owner, "OTHER")]
         )
 
 

@@ -8,7 +8,6 @@ from app.main.services.asset_service import AssetService
 from app.app import create_app
 
 logger = logging.getLogger(__name__)
-app = create_app()
 
 
 def contains_one_or_more(values: list[str], lists_to_check: list[list[str]]) -> bool:
@@ -124,25 +123,26 @@ def main(
                 repository_name.startswith(prefix) if prefix is not None else False
             )
 
-            with app.app_context():
-                asset_service = AssetService(AssetRepository())
-                owner_repository = OwnerRepository()
+            asset_service = AssetService(AssetRepository())
+            owner_repository = OwnerRepository()
 
-                owner = owner_repository.find_by_name(name)[0]
-                asset = asset_service.add_if_name_does_not_exist(repository_name)
+            owner = owner_repository.find_by_name(name)[0]
+            asset = asset_service.add_if_name_does_not_exist(repository_name)
 
-                if contains_one_or_more(teams, teams_with_admin_access):
-                    asset_service.update_relationships_with_owner(
-                        asset, owner, "ADMIN_ACCESS"
-                    )
-                elif (
-                    contains_one_or_more(teams, teams_with_any_access)
-                    or repository_name_starts_with_prefix
-                ):
-                    asset_service.update_relationships_with_owner(asset, owner, "OTHER")
+            if contains_one_or_more(teams, teams_with_admin_access):
+                asset_service.update_relationships_with_owner(
+                    asset, owner, "ADMIN_ACCESS"
+                )
+            elif (
+                contains_one_or_more(teams, teams_with_any_access)
+                or repository_name_starts_with_prefix
+            ):
+                asset_service.update_relationships_with_owner(asset, owner, "OTHER")
 
     logger.info("Complete!")
 
 
 if __name__ == "__main__":
-    main()
+    app = create_app()
+    with app.app_context():
+        main()
