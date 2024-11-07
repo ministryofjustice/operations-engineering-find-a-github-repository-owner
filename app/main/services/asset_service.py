@@ -86,10 +86,10 @@ class AssetService:
             )
 
         if len(assets) == 1:
-            logging.info(f"Found repository [ {name} ]")
+            logging.debug(f"Found existing respoistory with ID [ {assets[0].id} ]")
             return assets[0]
 
-        logging.info(f"No repository found [ {name} ] - creating a new asset")
+        logging.info(f"No repository found [ {name} ] - creating a new asset...")
         return self.__asset_repository.add_asset(name, "REPOSITORY")
 
 

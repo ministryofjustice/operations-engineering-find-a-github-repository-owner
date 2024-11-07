@@ -95,11 +95,13 @@ def main(
     repositories = github_service.get_all_repositories()
 
     for owner in owners:
+        logger.info(f"Mapping Repositories for Owner [ {owner} ]")
         name = owner["name"]
         teams = owner["teams"]
         prefix = owner.get("prefix")
 
         for repository in repositories:
+            logger.info(f"Mapping Repository [ {repository} ]")
             github_teams_with_admin_access = repository[
                 "github_teams_with_admin_access"
             ]
