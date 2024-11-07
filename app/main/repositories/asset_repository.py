@@ -1,3 +1,6 @@
+import logging
+
+from sqlalchemy.engine import create
 from app.main.models import Asset, Relationship, db, Owner
 from flask import g
 from sqlalchemy.orm import scoped_session
@@ -78,6 +81,46 @@ class AssetRepository:
         self.db_session.query(Relationship).delete()
         self.db_session.query(Owner).delete()
         self.db_session.query(Asset).delete()
+
+    def find_by_name(self, name: str) -> List[Asset]:
+        assets = self.db_session.query(Asset).filter(Asset.name == name).all()
+        return assets
+
+    def update_relationship_with_owner(
+        self, asset: Asset, owner: Owner, relationship_type: str
+    ) -> Relationship:
+        relationships = (
+            self.db_session.query(Relationship)
+            .filter_by(asset_id=asset.id, owner_id=owner.id)
+            .all()
+        )
+
+        if len(relationships) > 1:
+            raise ValueError(
+                f"Asset [ {asset.name} ] has multiple relationships with Owner [ {owner.name} ]"
+            )
+
+        if len(relationships) == 0:
+            logging.info(
+                f"Asset [ {asset.name} ] has no relationships with [ {owner.name} ] - creating new relationship [ {relationship_type} ] "
+            )
+            return self.create_relationship(asset, owner, relationship_type)
+
+        relationship = relationships[0]
+
+        if relationship.type == relationship_type:
+            logging.info(
+                f"No relationship change between Asset [ {asset.name} ] and Owner [ {owner.name} ] - skipping"
+            )
+            return relationship
+
+        logging.info(
+            f"Asset [ {asset.name} ] has one relationships with [ {owner.name} ] - updating relationship from [ {relationship.type} ] to new relationship [ {relationship_type} ] "
+        )
+        relationship.type = relationship_type
+        self.db_session.commit()
+
+        return relationship
 
 
 def get_asset_repository() -> AssetRepository:

@@ -1,8 +1,11 @@
-from app.main.services.database_service import DatabaseService
+from app.main.repositories.asset_repository import AssetRepository
+from app.main.repositories.owner_repository import OwnerRepository
 import logging
 from app.main.config.app_config import app_config
 from app.main.config.logging_config import configure_logging
 from app.main.services.github_service import GithubService
+from app.main.services.asset_service import AssetService
+from app.app import create_app
 
 logger = logging.getLogger(__name__)
 
@@ -86,18 +89,17 @@ def main(
     configure_logging(app_config.logging_level)
     logger.info("Running...")
 
-    database_service = DatabaseService()
     github_service = GithubService(app_config.github.token)
     repositories = github_service.get_all_repositories()
 
     for owner in owners:
+        logger.info(f"Mapping Repositories for Owner [ {owner} ]")
         name = owner["name"]
         teams = owner["teams"]
         prefix = owner.get("prefix")
 
-        owner_id, _ = database_service.find_owner_by_name(name)[0]
-
         for repository in repositories:
+            logger.info(f"Mapping Repository [ {repository} ]")
             github_teams_with_admin_access = repository[
                 "github_teams_with_admin_access"
             ]
@@ -121,24 +123,26 @@ def main(
                 repository_name.startswith(prefix) if prefix is not None else False
             )
 
+            asset_service = AssetService(AssetRepository())
+            owner_repository = OwnerRepository()
+
+            owner = owner_repository.find_by_name(name)[0]
+            asset = asset_service.add_if_name_does_not_exist(repository_name)
+
             if contains_one_or_more(teams, teams_with_admin_access):
-                database_service.add_relationship_between_asset_and_owner(
-                    repository_name, owner_id, "ADMIN_ACCESS"
+                asset_service.update_relationships_with_owner(
+                    asset, owner, "ADMIN_ACCESS"
                 )
             elif (
                 contains_one_or_more(teams, teams_with_any_access)
                 or repository_name_starts_with_prefix
             ):
-                database_service.add_relationship_between_asset_and_owner(
-                    repository_name, owner_id
-                )
-
-            database_service.add_asset_if_name_does_not_exist(
-                "REPOSITORY", repository_name
-            )
+                asset_service.update_relationships_with_owner(asset, owner, "OTHER")
 
     logger.info("Complete!")
 
 
 if __name__ == "__main__":
-    main()
+    app = create_app()
+    with app.app_context():
+        main()
