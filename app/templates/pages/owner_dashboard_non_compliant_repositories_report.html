@@ -23,13 +23,15 @@
         <tr class="govuk-table__row">
           <th scope="col" class="govuk-table__header">Repository</th>
           <th scope="col" class="govuk-table__header">Compliance Status</th>
+          <th scope="col" class="govuk-table__header"></th>
         </tr>
       </thead>
       <tbody class="govuk-table__body">
       {% for repository in  repositories %}
       <tr class="govuk-table__row">
         <td class="govuk-table__cell"><a href="https://github.com/ministryofjustice/{{ repository["name"] }}" rel="noreferrer noopener" target="_blank" class="govuk-link">{{ repository["name"] }}</a></td>
-        <td class="govuk-table__cell">{{ repositories_compliance_map[repository.name] }}</td>
+        <td class="govuk-table__cell">{{ repositories_compliance_map[repository.name] }}</td> 
+        <td class="govuk-table__cell"><a href="https://operations-engineering-reports.cloud-platform.service.justice.gov.uk/public-report/{{ repository["name"] }}" rel="noreferrer noopener" target="_blank" class="govuk-link">View Compliace Report</a></td>
       </tr>
       {% endfor %}
       </tbody>

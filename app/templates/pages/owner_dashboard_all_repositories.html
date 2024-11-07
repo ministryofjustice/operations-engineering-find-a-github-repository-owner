@@ -21,6 +21,7 @@
           <th scope="col" class="govuk-table__header" aria-sort="ascending">
             Access Level
           </th>
+          <th scope="col" class="govuk-table__header"></th>
         </tr>
       </thead>
       <tbody class="govuk-table__body">
@@ -39,6 +40,7 @@
             Unknown
             {% endif %}
           </td>
+          <td class="govuk-table__cell"><a href="https://operations-engineering-reports.cloud-platform.service.justice.gov.uk/public-report/{{ repository["name"] }}" rel="noreferrer noopener" target="_blank" class="govuk-link">View Compliace Report</a></td>
         </tr>
         {% endfor %}
       </tbody>
