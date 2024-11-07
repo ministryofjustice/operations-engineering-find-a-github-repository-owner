@@ -1,6 +1,5 @@
 from app.main.repositories.asset_repository import AssetRepository
 from app.main.repositories.owner_repository import OwnerRepository
-from app.main.services.database_service import DatabaseService
 import logging
 from app.main.config.app_config import app_config
 from app.main.config.logging_config import configure_logging
