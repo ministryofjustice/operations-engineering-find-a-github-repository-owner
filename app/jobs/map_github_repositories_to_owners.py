@@ -84,6 +84,16 @@ def main(
             "name": "Tech Services",
             "teams": ["nvvs-devops-admins", "moj-official-techops"],
         },
+        {
+            "name": "Operations Engineering",
+            "teams": ["operations-engineering"],
+            "prefix": "operations-engineering-",
+        },
+        {
+            "name": "Modernisation Platform",
+            "teams": ["modernisation-platform"],
+            "prefix": "modernisation-platform-",
+        },
     ],
 ):
     configure_logging(app_config.logging_level)
