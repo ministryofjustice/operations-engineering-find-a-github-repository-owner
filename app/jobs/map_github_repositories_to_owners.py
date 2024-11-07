@@ -9,6 +9,7 @@ from app.main.services.asset_service import AssetService
 from app.app import create_app
 
 logger = logging.getLogger(__name__)
+app = create_app()
 
 
 def contains_one_or_more(values: list[str], lists_to_check: list[list[str]]) -> bool:
@@ -90,8 +91,6 @@ def main(
     configure_logging(app_config.logging_level)
     logger.info("Running...")
 
-    asset_service = AssetService(AssetRepository())
-    owner_repository = OwnerRepository()
     github_service = GithubService(app_config.github.token)
     repositories = github_service.get_all_repositories(10)
 
@@ -124,9 +123,10 @@ def main(
                 repository_name.startswith(prefix) if prefix is not None else False
             )
 
-            app = create_app()
-
             with app.app_context():
+                asset_service = AssetService(AssetRepository())
+                owner_repository = OwnerRepository()
+
                 owner = owner_repository.find_by_name(name)[0]
                 asset = asset_service.add_if_name_does_not_exist(repository_name)
 
