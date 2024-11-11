@@ -65,18 +65,22 @@ class GithubService:
         self.github_client_core_api: Github = Github(org_token)
 
     @retries_github_rate_limit_exception_at_next_reset_once
-    def __get_all_parents_team_names_of_team(self, team: Team) -> list[str]:
-        parents = []
+    def __get_all_parents_team_names_of_team(
+        self, team: Team, team_parent_cache: dict[str, List[str]] = {}
+    ) -> list[str]:
+        if team.name in team_parent_cache:
+            logging.info("Teams parents cache hit!")
+            return team_parent_cache[team.name]
 
-        team_has_parent = True
+        parents = []
         team_to_check = team
 
-        while team_has_parent:
-            if team_to_check is None or team_to_check.parent is None:
-                team_has_parent = False
-            else:
-                parents.append(team_to_check.parent.name)
-                team_to_check = team_to_check.parent
+        while team_to_check and team_to_check.parent:
+            parent_name = team_to_check.parent.name
+            parents.append(parent_name)
+            team_to_check = team_to_check.parent
+
+        team_parent_cache[team.name] = parents
         return parents
 
     @retries_github_rate_limit_exception_at_next_reset_once
@@ -84,6 +88,8 @@ class GithubService:
         self,
         repository: Repository,
         teams_to_ignore: List[str],
+        team: Team,
+        team_parent_cache: dict[str, List[str]] = {},
     ) -> tuple[list[str], list[str], list[str], list[str]]:
         teams_with_admin_access = []
         teams_with_admin_access_parents = []
@@ -96,7 +102,9 @@ class GithubService:
                 logging.info("Team specified to ignore, skipping...")
                 continue
             permissions = team.get_repo_permission(repository)
-            team_parents = self.__get_all_parents_team_names_of_team(team)
+            team_parents = self.__get_all_parents_team_names_of_team(
+                team, team_parent_cache
+            )
             if permissions and permissions.admin:
                 teams_with_admin_access.append(team.name)
                 teams_with_admin_access_parents.extend(team_parents)
@@ -123,6 +131,7 @@ class GithubService:
         teams_to_ignore: List[str] = ["organisation-security-auditor"],
     ) -> list[dict]:
         response = []
+        team_parent_cache = {}
         repositories = list(
             self.github_client_core_api.get_organization(
                 self.organisation_name
@@ -147,7 +156,7 @@ class GithubService:
                 teams_with_admin_access_parents,
                 teams_with_any_access,
                 teams_with_any_access_parents,
-            ) = self.__get_teams_with_access(repo, teams_to_ignore)
+            ) = self.__get_teams_with_access(repo, teams_to_ignore, team_parent_cache)
             response.append(
                 {
                     "name": repo.name,
