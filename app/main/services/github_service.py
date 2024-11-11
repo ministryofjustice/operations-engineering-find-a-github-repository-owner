@@ -1,13 +1,11 @@
 from calendar import timegm
 from time import gmtime, sleep
-from typing import Callable
+from typing import Callable, List
 
 from github import (
     Github,
     RateLimitExceededException,
 )
-from requests import Session
-from github.Organization import Organization
 from github.Repository import Repository
 from github.Team import Team
 import logging
@@ -83,14 +81,20 @@ class GithubService:
 
     @retries_github_rate_limit_exception_at_next_reset_once
     def __get_teams_with_access(
-        self, repository: Repository
+        self,
+        repository: Repository,
+        teams_to_ignore: List[str],
     ) -> tuple[list[str], list[str], list[str], list[str]]:
         teams_with_admin_access = []
         teams_with_admin_access_parents = []
         teams_with_any_access = []
         teams_with_any_access_parents = []
+
         for team in list(repository.get_teams()):
             logger.info(f"Processing Team: [ {team.name} ]")
+            if team.name in teams_to_ignore:
+                logging.info("Team specified to ignore, skipping...")
+                continue
             permissions = team.get_repo_permission(repository)
             team_parents = self.__get_all_parents_team_names_of_team(team)
             if permissions and permissions.admin:
@@ -113,7 +117,11 @@ class GithubService:
         )
 
     @retries_github_rate_limit_exception_at_next_reset_once
-    def get_all_repositories(self, limit: int = 1000) -> list[dict]:
+    def get_all_repositories(
+        self,
+        limit: int = 1000,
+        teams_to_ignore: List[str] = ["organisation-security-auditor"],
+    ) -> list[dict]:
         response = []
         repositories = list(
             self.github_client_core_api.get_organization(
@@ -139,7 +147,7 @@ class GithubService:
                 teams_with_admin_access_parents,
                 teams_with_any_access,
                 teams_with_any_access_parents,
-            ) = self.__get_teams_with_access(repo)
+            ) = self.__get_teams_with_access(repo, teams_to_ignore)
             response.append(
                 {
                     "name": repo.name,
