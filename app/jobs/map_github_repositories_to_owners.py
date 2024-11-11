@@ -70,29 +70,6 @@ def main(
                 "Hale platform",
                 "JOTW Content Devs",
             ],
-        },
-        {
-            "name": "Platforms and Architecture",
-            "teams": [
-                ### Hosting Platforms
-                "modernisation-platform",
-                "operations-engineering",
-                "aws-root-account-admin-team",
-                "WebOps",  # Cloud Platform
-                "Studio Webops",  # Digital Studio Operations (DSO)
-                ### Data Platforms
-                "analytical-platform",
-                "data-engineering",
-                "analytics-hq",
-                "data-catalogue",
-                "data-platform",
-                "data-and-analytics-engineering",
-                "observability-platform",
-                ### Publishing Platforms
-                "Form Builder",
-                "Hale platform",
-                "JOTW Content Devs",
-            ],
             "prefix": "bichard7",
         },
         {
