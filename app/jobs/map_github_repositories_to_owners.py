@@ -54,7 +54,22 @@ def main(
         },
         {
             "name": "Central Digital",
-            "teams": ["Central Digital Product Team", "tactical-products"],
+            "teams": [
+                "Central Digital Product Team",
+                "tactical-products",
+                # Data Platforms
+                "analytical-platform",
+                "data-engineering",
+                "analytics-hq",
+                "data-catalogue",
+                "data-platform",
+                "data-and-analytics-engineering",
+                "observability-platform",
+                # Publishing Platforms
+                "Form Builder",
+                "Hale platform",
+                "JOTW Content Devs",
+            ],
         },
         {
             "name": "Platforms and Architecture",
@@ -79,6 +94,17 @@ def main(
                 "JOTW Content Devs",
             ],
             "prefix": "bichard7",
+        },
+        {
+            "name": "CTO Office",
+            "teams": [
+                # Hosting Platforms
+                "modernisation-platform",
+                "operations-engineering",
+                "aws-root-account-admin-team",
+                "WebOps",  # Cloud Platform
+                "Studio Webops",  # Digital Studio Operations (DSO)
+            ],
         },
         {
             "name": "Tech Services",
