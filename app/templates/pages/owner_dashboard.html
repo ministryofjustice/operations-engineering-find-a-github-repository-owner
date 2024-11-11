@@ -29,7 +29,7 @@
                 {% endif %}
             ">
                 {{ repositories | length - repositories_without_admin_access | length }}
-                ({{ admin_percentage | round(1) }}%)
+                ({{ admin_percentage | round | int }}%)
             </span>
         </dd>
     </div>
@@ -46,10 +46,22 @@
                 {% endif %}
             ">
                 {{ repositories | length - non_compliant_repositories | length }}
-                ({{ compliance_percentage | round(1) }}%)
+                ({{ compliance_percentage | round | int }}%)
             </span>
         </dd>
     </div>
+
+    {% if circle_cost %}
+    <div class="govuk-summary-list__row">
+        <dt class="govuk-summary-list__key">CircleCI Cost (Last 30 Days)</dt>
+        <dd class="govuk-summary-list__value">
+          {{ "£{:,.2f}".format(circle_cost) }}
+        </dd>
+        <dd class="govuk-summary-list__value">
+          <a href="/owner/{{ owner }}/circleci" class="govuk-link govuk-link--no-visited-state">View CircleCI Projects Report</a>
+        </dd>
+    </div>
+    {% endif %}
 </section>
 
 <p class="govuk-body govuk-!-margin-bottom-6">

@@ -44,6 +44,10 @@ spec:
               value: {{ .Values.app.deployment.env.POSTGRES_HOST | quote }}
             - name: POSTGRES_PORT
               value: {{ .Values.app.deployment.env.POSTGRES_PORT | quote }}
+            - name: CIRCLECI_COST_PER_CREDIT
+              value: {{ .Values.app.deployment.env.CIRCLECI_COST_PER_CREDIT | quote }}
+            - name: CIRCLECI_TOKEN
+              value: {{ .Values.app.deployment.env.CIRCLECI_TOKEN | quote }}
 
           ports:
             - name: http

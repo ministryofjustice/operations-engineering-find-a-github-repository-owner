@@ -7,6 +7,9 @@ from app.main.middleware.auth import requires_auth
 from app.main.repositories.asset_repository import AssetView
 from app.main.repositories.owner_repository import get_owner_repository
 from app.main.services.asset_service import get_asset_service
+from app.main.services.circleci_service import (
+    get_circleci_service,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -103,8 +106,9 @@ def index():
 def owner_dashboard(owner: str):
     asset_service = get_asset_service()
     owner_repository = get_owner_repository()
-    owners = owner_repository.find_all_names()
+    circleci_service = get_circleci_service()
 
+    owners = owner_repository.find_all_names()
     if owner not in owners:
         abort(404)
 
@@ -117,12 +121,18 @@ def owner_dashboard(owner: str):
         "FAIL", repositories, repositories_compliance_map
     )
 
+    circleci_projects = circleci_service.get_circleci_project_metrics_for_repositories(
+        repositories
+    )
+    circleci_cost = circleci_service.get_total_cost_of_projects(circleci_projects)
+
     return render_template(
         "pages/owner_dashboard.html",
         owner=owner,
         repositories=repositories,
         repositories_without_admin_access=repositories_without_admin_access,
         non_compliant_repositories=non_compliant_repositories,
+        circle_cost=circleci_cost,
     )
 
 
@@ -131,8 +141,8 @@ def owner_dashboard(owner: str):
 def owner_dashboard_all_repositories(owner: str):
     asset_service = get_asset_service()
     owner_repository = get_owner_repository()
-    owners = owner_repository.find_all_names()
 
+    owners = owner_repository.find_all_names()
     if owner not in owners:
         abort(404)
 
@@ -151,8 +161,8 @@ def owner_dashboard_all_repositories(owner: str):
 def owner_dashboard_repositories_without_admin_access(owner: str):
     asset_service = get_asset_service()
     owner_repository = get_owner_repository()
-    owners = owner_repository.find_all_names()
 
+    owners = owner_repository.find_all_names()
     if owner not in owners:
         abort(404)
 
@@ -171,8 +181,8 @@ def owner_dashboard_repositories_without_admin_access(owner: str):
 def owner_dashboard_non_compliant_repositories_report(owner: str):
     asset_service = get_asset_service()
     owner_repository = get_owner_repository()
-    owners = owner_repository.find_all_names()
 
+    owners = owner_repository.find_all_names()
     if owner not in owners:
         abort(404)
 
@@ -187,4 +197,28 @@ def owner_dashboard_non_compliant_repositories_report(owner: str):
         owner=owner,
         repositories=repositories,
         repositories_compliance_map=repositories_compliance_map,
+    )
+
+
+@owner_route.route("/<owner>/circleci", methods=["GET"])
+@requires_auth
+def owner_dashboard_circleci(owner: str):
+    circleci_service = get_circleci_service()
+    asset_service = get_asset_service()
+    owner_repository = get_owner_repository()
+
+    owners = owner_repository.find_all_names()
+    if owner not in owners:
+        abort(404)
+
+    repositories = asset_service.get_repositories_by_authoratative_owner(owner)
+
+    circleci_projects = circleci_service.get_circleci_project_metrics_for_repositories(
+        repositories
+    )
+
+    return render_template(
+        "pages/owner_dashboard_circleci.html",
+        owner=owner,
+        circleci_projects=circleci_projects,
     )
