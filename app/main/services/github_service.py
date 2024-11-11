@@ -85,7 +85,6 @@ class GithubService:
     def __get_teams_with_access(
         self, repository: Repository
     ) -> tuple[list[str], list[str], list[str], list[str]]:
-        logger.info(f"Processing Repository: [ {repository.name} ]")
         teams_with_admin_access = []
         teams_with_admin_access_parents = []
         teams_with_any_access = []
@@ -127,11 +126,14 @@ class GithubService:
             if not (repository.archived or repository.fork)
         ]
         logger.info(f"Total Repositories: [ {len(repositories_to_check)} ]")
-        counter = 0
+        counter = 1
         for repo in repositories_to_check:
-            if counter >= limit:
+            if counter > limit:
                 logger.info("Limit Reached, exiting early")
                 break
+            logger.info(
+                f"Processing Repository: [ {repo.name} ] {counter}/{len(repositories_to_check)}"
+            )
             (
                 teams_with_admin_access,
                 teams_with_admin_access_parents,
