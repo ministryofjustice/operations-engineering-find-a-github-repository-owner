@@ -102,7 +102,10 @@ def main(
     configure_logging(app_config.logging_level)
     logger.info("Running...")
 
+    asset_service = AssetService(AssetRepository())
+    owner_repository = OwnerRepository()
     github_service = GithubService(app_config.github.token)
+
     repositories = github_service.get_all_repositories()
 
     for owner in owners:
@@ -135,9 +138,6 @@ def main(
             repository_name_starts_with_prefix = (
                 repository_name.startswith(prefix) if prefix is not None else False
             )
-
-            asset_service = AssetService(AssetRepository())
-            owner_repository = OwnerRepository()
 
             owner = owner_repository.find_by_name(name)[0]
             asset = asset_service.add_if_name_does_not_exist(repository_name)
