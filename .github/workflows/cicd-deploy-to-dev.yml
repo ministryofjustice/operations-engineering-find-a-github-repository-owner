@@ -23,6 +23,8 @@ env:
   ADMIN_GITHUB_TOKEN: ${{ secrets.MOJ_GITHUB_READ_BOT_PAT }}
   AUTH0_CLIENT_ID: ${{ secrets.DEV_AUTH0_CLIENT_ID }}
   AUTH0_CLIENT_SECRET: ${{ secrets.DEV_AUTH0_CLIENT_SECRET }}
+  CIRCLECI_COST_PER_CREDIT: ${{ secrets.CIRCLECI_COST_PER_CREDIT }}
+  CIRCLECI_TOKEN: ${{ secrets.CIRCLECI_ADMIN_CONNOR_PAT }}
 
 jobs:
   build-push:
@@ -80,5 +82,7 @@ jobs:
             --set app.deployment.env.POSTGRES_HOST=${POSTGRES_HOST} \
             --set app.deployment.env.POSTGRES_PORT=${POSTGRES_PORT} \
             --set app.deployment.env.ADMIN_GITHUB_TOKEN=${ADMIN_GITHUB_TOKEN} \
+            --set app.deployment.env.CIRCLECI_COST_PER_CREDIT=${CIRCLECI_COST_PER_CREDIT} \
+            --set app.deployment.env.CIRCLECI_TOKEN=${CIRCLECI_TOKEN} \
             --set app.deployment.image.repository=${ECR_REGISTRY}/${ECR_REPOSITORY} \
             --set app.deployment.image.tag=${IMAGE_TAG}
