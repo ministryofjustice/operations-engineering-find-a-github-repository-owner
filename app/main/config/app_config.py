@@ -2,15 +2,12 @@ import os
 from types import SimpleNamespace
 
 
-def __get_env_var(name: str, required: bool = True) -> str:
-    response = os.getenv(name)
-    if not response and required:
-        raise ValueError(f"Missing Environment Variable [ {name} ]")
-    return str(os.getenv(name))
+def __get_env_var(name: str) -> str | None:
+    return os.getenv(name)
 
 
-def __get_env_var_as_boolean(name: str, default: bool, required=True) -> bool | None:
-    value = __get_env_var(name, required)
+def __get_env_var_as_boolean(name: str, default: bool) -> bool | None:
+    value = __get_env_var(name)
 
     if value is None:
         return default
@@ -36,12 +33,16 @@ app_config = SimpleNamespace(
     ),
     circleci=SimpleNamespace(
         token=__get_env_var("CIRCLECI_TOKEN"),
-        cost_per_credit=float(__get_env_var("CIRCLECI_COST_PER_CREDIT")),
+        cost_per_credit=float(
+            str(__get_env_var("CIRCLECI_COST_PER_CREDIT"))
+            if __get_env_var("CIRCLECI_COST_PER_CREDIT")
+            else "0.0005"
+        ),
     ),
     flask=SimpleNamespace(
         app_secret_key=__get_env_var("APP_SECRET_KEY"),
     ),
-    logging_level=__get_env_var("LOGGING_LEVEL", required=False),
+    logging_level=__get_env_var("LOGGING_LEVEL"),
     phase_banner_text=__get_env_var("PHASE_BANNER_TEXT"),
     postgres=SimpleNamespace(
         user=__get_env_var("POSTGRES_USER"),
