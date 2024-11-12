@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: find-a-github-repository-owner
+  name: map-github-repositories-to-owners-job
   labels:
     {{- include "app.labels" . | nindent 4 }}
 spec:
@@ -16,7 +16,7 @@ spec:
         spec:
           serviceAccountName: cd-serviceaccount
           containers:
-          - name: find-a-github-repository-owner
+          - name: map-github-repositories-to-owners-job
             image: "{{ .Values.app.deployment.image.repository }}:{{ .Values.app.deployment.image.tag | default .Chart.AppVersion }}"
             command: ["python3", "-m"]
             args: ["app.jobs.map_github_repositories_to_owners"]
